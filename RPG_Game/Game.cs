@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace RPG_Game {
@@ -21,25 +19,44 @@ namespace RPG_Game {
         }
 
         private bool BeginGame() {
-            Console.Title = Animation._Skipped.ToString();
             int selection = -1;
             while (true) {
                 if (ps.Health <= 0)
                     return true;
                 Console.Clear();
-                Console.WriteLine("Currently Player Stats:\n\n");
+
+                Console.WriteLine("\nCurrent Player Stats:\n\n");
                 Console.WriteLine("Class: " + ps.PlayerClass.ToString() + "\n");
-                Console.WriteLine("Level: " + ps.Level + ((ps.Level == 50) ? " (Max Level)" : ""));
-                Console.WriteLine("Experience: (" + ps.Experience + "/" + ps.MaxExperience + ")\n");
-                Console.WriteLine("Health: (" + ps.Health + "/" + ps.MaxHealth + ")");
-                Console.WriteLine("Mana: (" + ps.Mana + "/" + ps.MaxMana + ")\n");
-                Console.WriteLine("Power: " + ps.Power);
-                Console.WriteLine("Nimble: " + ps.Nimble);
-                Console.WriteLine("Magic: " + ps.Magic);
-                Console.WriteLine("Cunning: " + ps.Cunning + "\n\n");
-                Console.WriteLine("Available Skill Points: " + ps.AvailableSkillPoints + "\n");
+
+                Program.ConsoleColorWrite("Level: ", ConsoleColor.Yellow);
+                Console.WriteLine(ps.Level + ((ps.Level == 50) ? " (Max Level)" : ""));
+
+                Program.ConsoleColorWrite("Experience: ", ConsoleColor.White);
+                Console.WriteLine("(" + ps.Experience + "/" + ps.MaxExperience + ")\n");
+
+                Program.ConsoleColorWrite("Health: ", ConsoleColor.Red);
+                Console.WriteLine("(" + ps.Health + "/" + ps.MaxHealth + ")");
+
+                Program.ConsoleColorWrite("Mana:", ConsoleColor.Blue, ConsoleColor.DarkGray);
+                Console.WriteLine(" (" + ps.Mana + "/" + ps.MaxMana + ")\n");
+
+                Program.ConsoleColorWrite("Power: ", ConsoleColor.DarkRed);
+                Console.WriteLine(ps.Power);
+
+                Program.ConsoleColorWrite("Nimble: ", ConsoleColor.Green);
+                Console.WriteLine(ps.Nimble);
+
+                Program.ConsoleColorWrite("Magic: ", ConsoleColor.DarkCyan);
+                Console.WriteLine(ps.Magic);
+
+                Program.ConsoleColorWrite("Cunning: ", ConsoleColor.DarkYellow);
+                Console.WriteLine(ps.Cunning + "\n\n");
+
+                Program.ConsoleColorWrite("Available Skill Points: ", ConsoleColor.White);
+                Console.WriteLine(ps.AvailableSkillPoints + "\n");
+
                 Menu.WriteOnBottomLine("What would you like to do?\n", 4, true);
-                Menu.WriteOnBottomLine("(1) Enter Battle (2) Purchase Items (3) Save Game" + ((ps.AvailableSkillPoints > 0) ? " (4) Spend Skill Points\n" : " ") + "(99) Exit", 3, true);
+                Menu.WriteOnBottomLine("(1) Enter Battle (2) Purchase Items (3) Save Game" + ((ps.AvailableSkillPoints > 0) ? " (4) Spend Skill Points " : " ") + "(99) Exit", 3, true);
                 Menu.WriteOnBottomLine(">> ");
                 var x = Console.ReadLine();
                 if (int.TryParse(x, out selection)) {
@@ -57,7 +74,7 @@ namespace RPG_Game {
                         if (DoesSaveDataMatchCurrentData()) {
                             Environment.Exit(0);
                         } else {
-                            Console.WriteLine("Are you sure you want to quit? (y/n)\nNote: Your save data doesn't match your current stats.");
+                            Console.WriteLine("Are you sure you want to quit? (y/N)\nNote: Your save data doesn't match your current stats.");
                             Console.Write(">> ");
                             if (Console.ReadLine().ToLowerInvariant() == "y")
                                 Environment.Exit(0);
@@ -73,15 +90,12 @@ namespace RPG_Game {
         }
 
         private void Battle() {
-            Console.Title = Animation._Skipped.ToString();
             Console.Clear();
             Enemy e = new Enemy(ps.CurrentDifficultRating());
             int timesPlayerCanAttemptFlee = 1;
             bool playerEscapeStatus = false;
 
             e.WriteOutBattleText();
-
-            Console.Title = Animation._Skipped.ToString();
 
             while (e.Health > 0 && ps.Health > 0 && !playerEscapeStatus) {
                 bool ShouldEnemyAttackPlayer = true;
@@ -143,7 +157,6 @@ namespace RPG_Game {
                     Animation.RunAnimation(textToType: "\nThe enemy lashes back and deals " + enemyDamage + " damage to you!");
                     ps.AlterHealth(Operation.Subtract, enemyDamage);
                 }
-
             }
 
             if (!playerEscapeStatus) {
@@ -154,32 +167,52 @@ namespace RPG_Game {
                     Animation.RunAnimation(AnimationType.Dot, 200);
                     Animation.RunAnimation(textToType: "\nCongrats! You have defeated your foe,", skipLine: false);
                     Animation.RunAnimation(AnimationType.TextTyping, 200, " ", false);
-                    Animation.RunAnimation(textToType: "and as a result you have gained " + experienceGain + "\nexperience!\n");
+                    Animation.RunAnimation(textToType: "and as a result you have gained " + experienceGain + " experience!\n");
                     ps.AlterExperience(Operation.Add, experienceGain);
                 } else if (ps.Health <= 0) {
                     Animation.RunAnimation(textToType: "\n\nYou have died in combat\n");
                     Animation.RunAnimation(AnimationType.Dot, 100);
                     Animation.RunAnimation(textToType: "\nYou can begin a new game or start from your previous save.\n");
-                    Animation.RunAnimation(textToType: "\nStart from previous save? (y/n)\n>> ", skipLine: false);
+                    Animation.RunAnimation(textToType: "\nStart from previous save? (Y/n)\n>> ", skipLine: false);
                     var choice = Console.ReadLine();
-                    if (choice.ToLowerInvariant() == "y") {
-                        Menu.LoadGame();
+                    if (choice.ToLowerInvariant() == "n") {
+                        System.Diagnostics.Process.Start(Application.ExecutablePath);
+                        Environment.Exit(0);
                     } else {
-                        Application.Restart();
+                        Menu.LoadGame();
                     }
                 }
 
                 if ((ps.Level < ps.MAX_LEVEL) && (ps.Experience >= ps.MaxExperience)) {
-                    ps.AlterExperience(Operation.Subtract, ps.MaxExperience);
-                    ps.AlterMaxExperience(Operation.Set, (int)(Math.Pow(2, (1 / 8) * ps.Level)) * 10);
+
+                    // Calculate a multi-level scenerio
+                    int level_up_amount = 0;
+
+                    while (ps.Experience >= ps.MaxExperience) {
+                        // Subtract the max amount of experience from the current experience
+                        // i.e. Level 1 - 19.6/10 => Level 1 - 9.6/10
+                        ps.AlterExperience(Operation.Subtract, ps.MaxExperience);
+
+                        // Increase the Level by 1
+                        // i.e. Level 1 - 9.6/10 => Level 2 - 9.6/10
+                        ps.AlterLevel(Operation.Add, 1);
+
+                        // Increase the Max Experience by calculation
+                        // i.e. Level 2 - 9.6/10 => Level 2 - 9.6/11
+                        ps.AlterMaxExperience(Operation.Set, (int)(Math.Pow(2, (1.0f / 8.0f) * ps.Level) * 10));
+
+                        // Repeat while current experience is still greater then max experience.
+                        level_up_amount += 1;
+                    }
+
                     ps.AlterHealth(Operation.Set, ps.MaxHealth);
                     ps.AlterMana(Operation.Set, ps.MaxMana);
-                    ps.AlterSkillPoints(Operation.Add, 3);
+                    ps.AlterSkillPoints(Operation.Add, 3 * level_up_amount);
 
                     Animation.RunAnimation(AnimationType.Dot, 200);
                     Console.WriteLine("\nYour player has leveled up!!! You now have " + ps.AvailableSkillPoints + " skill points to spend!\n");
                 } else {
-                    if ((Program.FloatRNG() > 0.5) && (ps.Health != ps.MaxHealth) && (ps.Health > 0)) {
+                    if ((Program.FloatRNG() > 0.4) && (ps.Health != ps.MaxHealth) && (ps.Health > 0)) {
                         int healthRecovered = Program.IntRNG(1, (ps.MaxHealth / 2 >= 2) ? (ps.MaxHealth / 2) + 3 : (ps.MaxHealth / 2));
                         if (ps.Health + healthRecovered > ps.MaxHealth)
                             ps.AlterHealth(Operation.Set, ps.MaxHealth);
@@ -206,13 +239,25 @@ namespace RPG_Game {
                 Animation.RunAnimation(AnimationType.TextTyping, 50, "\nHello Adventurer! I am Elise, the training guide in this town.\n" +
                                                             "It seems as though you have a prospect to get stronger!\n" +
                                                             "\n*You are surprised but nod in agreement*\n\n" +
-                                                            "Great, you are showing promise already!.\nNow walk over here with me and I'll show you how to get stronger.");
+                                                            "Great, you are showing promise already!\nNow walk over here with me and I'll show you how to get stronger.");
                 ps.HasPreviouslyAssignedSkillPoints = true;
                 Console.ReadKey();
             }
 
+            bool firstLoop = true;
             while (isSpendingSkillPoints) {
                 Console.Clear();
+
+                // Used to cancel animation for the subsequent times the player enters the menu AFTER the first time.
+                // Basically used to prettify the skill menu.
+
+                if (firstLoop) {
+                    Animation.RunAnimation(textToType: "Elise: Greetings Adventurer! Come to train your skills, have you?\n");
+                    firstLoop = false;
+                } else {
+                    Console.WriteLine("Elise: Greetings Adventurer! Come to train your skills, have you?\n");
+                }
+
                 Console.Write("You have " + ps.AvailableSkillPoints + " skill points to spend.\n\nYou can spend them by ");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("typing the chosen attribute ");
@@ -222,8 +267,12 @@ namespace RPG_Game {
                 Console.Write("typing the amount you would like to spend");
                 Console.ResetColor();
                 Console.WriteLine(", then once you are finished\n type \"back\" to reenter to the town.");
-                Console.WriteLine("(E.g.: power 5)");
+                Console.WriteLine("(E.g.: power 5)\n");
+                Console.WriteLine("The available stats are as follows:\n");
+                Console.WriteLine("\thealth, mana, power, nimble, magic, cunning\n");
+                Console.WriteLine($"Your Current Stats:\n\tMax Health: {ps.MaxHealth}\n\tMax Mana: {ps.MaxMana}\n\tPower: {ps.Power}\n\tNimble: {ps.Nimble}\n\tMagic: {ps.Magic}\n\tCunning: {ps.Cunning}\n\t");
                 Console.Write(">> ");
+
                 var userInput = Console.ReadLine();
                 string[] parameters = userInput.Split(new char[] { ' ' });
                 if (parameters.Length == 1 || parameters.Length >= 3) {

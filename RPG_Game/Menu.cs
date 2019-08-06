@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RPG_Game {
     public class Menu {
@@ -20,11 +18,10 @@ namespace RPG_Game {
             bool continuePlay = true;
             while (continuePlay) {
                 while (choice <= 0) {
-                    Console.Title = Animation._Skipped.ToString();
+                    Console.Title = "RPG Game V" + Program.VersionNumber;
                     LoadScreen(playMenuAnimation);
                     Console.Write(">> ");
                     var input = Console.ReadLine();
-                    Console.Title = Animation._Skipped.ToString();
 
                     if (int.TryParse(input, out choice)) {
                         if (choice == 1) {
@@ -33,7 +30,10 @@ namespace RPG_Game {
                                 choice = -1;
                         } else if (choice == 2) {
                             LoadGame();
-                        } else if (choice == 0){
+                        } else if (choice == 99) {
+                            System.Diagnostics.Process.Start(Application.ExecutablePath);
+                            Environment.Exit(0);
+                        } else {
                             Animation.RunAnimation(textToType: "\n\nInvalid Input.\n");
                             Console.ReadKey();
                             choice = -1;
@@ -85,7 +85,7 @@ namespace RPG_Game {
         }
 
         private bool NewGame() {
-            string[] classDescriptions = { "Warrior: What some call a fearsome brute, this class thrives in health and\nstrength.\n",
+            string[] classDescriptions = { "Warrior: What some call a fearsome brute, this class thrives in health and strength.\n",
                                            "Mage: A powerful and deadly force, these people specialize in the art of magic.\n",
                                            "Archer: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"};
 
@@ -104,13 +104,11 @@ namespace RPG_Game {
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, "(use the command \"back\" to return to the previous screen)\n"));
                     Animation.PlayQueue();
                     animationHasBeenPlayed = true;
-                    Console.Title = Animation._Skipped.ToString();
                 } else {
                     Console.WriteLine(classDescriptions[0] + "\n");
                     Console.WriteLine(classDescriptions[1] + "\n");
                     Console.WriteLine(classDescriptions[2] + "\n\n");
                     Console.WriteLine("(use the command \"back\" to return to the previous screen)\n");
-                    Console.Title = Animation._Skipped.ToString();
                 }
 
                 WriteOnBottomLine("Please Choose Your Class:\n", 2);
@@ -123,7 +121,6 @@ namespace RPG_Game {
                 } else if (!pClass.Trim().Equals("")) {
                     Animation.RunAnimation(textToType: "\n\n\nInvalid Class Selection.\n");
                     Console.ReadKey();
-                    Console.Title = Animation._Skipped.ToString();
                 }
             }
             if (playerClass == "warrior") { pc = PlayerClass.Warrior; } else if (playerClass == "mage") { pc = PlayerClass.Mage; } else if (playerClass == "archer") { pc = PlayerClass.Archer; }
@@ -175,6 +172,7 @@ namespace RPG_Game {
             int x = Console.CursorLeft;
             int y = Console.CursorTop;
             Console.CursorTop = Console.WindowTop + Console.WindowHeight - offset;
+
             Console.Write(text);
             // Restore previous position
             if (restoreCursorPosition)

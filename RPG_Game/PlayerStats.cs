@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RPG_Game {
     public class PlayerStats {
@@ -81,7 +78,7 @@ namespace RPG_Game {
             GameVariables.Add("maxMana", Mana);
             GameVariables.Add("availableSkillPoints", 0);
             GameVariables.Add("experience", 0.0f);
-            GameVariables.Add("maxExperience", ((int)(Math.Pow(2, (1/8) * Level)) * 10));
+            GameVariables.Add("maxExperience", (int)(Math.Pow(2, (1.0f / 8.0f) * Level) * 10));
             GameVariables.Add("promptSkillPoints", false);
         }
 
@@ -116,6 +113,12 @@ namespace RPG_Game {
             if (o == Operation.Add) AvailableSkillPoints += value;
             else if (o == Operation.Subtract) AvailableSkillPoints -= value;
             else if (o == Operation.Set) AvailableSkillPoints = value;
+        }
+        public void AlterLevel(Operation o, int value)
+        {
+            if (o == Operation.Add) Level += value;
+            else if (o == Operation.Subtract) Level -= value;
+            else if (o == Operation.Set) Level = value;
         }
 
         public void AddStats(Stat stat, int value) {

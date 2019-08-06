@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RPG_Game {
     public class Enemy {
@@ -15,7 +11,7 @@ namespace RPG_Game {
         private int health = -1, power = -1;
         private int healthMin = 15, healthIncreaseInterval = 5, powerMin = 1;
 
-        private string[] zombieBattleTexts = { "\nA figure wanders aimlessly amits the field you stumble upon,\nhe sees you starts to attack you!",
+        private string[] zombieBattleTexts = { "\nA figure wanders aimlessly amidst the field you stumble upon,\nhe sees you and starts to attack you!",
                                                 "\nUpon going outside the town you find what looks like a man standing up underneath a tree, suddenly he starts to charge towards you!",
                                                 "\nYou find a chest of what appears to be loot. As you approach it, a figure jumps out of a nearby shadow and attempts to attack you!"};
 

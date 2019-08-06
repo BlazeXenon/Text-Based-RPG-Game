@@ -46,7 +46,7 @@ namespace RPG_Game {
                 Program.ConsoleColorWrite("Nimble: ", ConsoleColor.Green);
                 Console.WriteLine(ps.Nimble);
 
-                Program.ConsoleColorWrite("Magic: ", ConsoleColor.DarkCyan);
+                Program.ConsoleColorWrite("Magic: ", ConsoleColor.Cyan);
                 Console.WriteLine(ps.Magic);
 
                 Program.ConsoleColorWrite("Cunning: ", ConsoleColor.DarkYellow);

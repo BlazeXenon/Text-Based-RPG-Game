@@ -26,37 +26,27 @@ namespace RPG_Game {
                 Console.Clear();
 
                 Console.WriteLine("\nCurrent Player Stats:\n\n");
-                Console.WriteLine("Class: " + ps.PlayerClass.ToString() + "\n");
 
-                Program.ConsoleColorWrite("Level: ", ConsoleColor.Yellow);
-                Console.WriteLine(ps.Level + ((ps.Level == 50) ? " (Max Level)" : ""));
+                Program.ConsoleColorWriteLine($"/wName:/e {ps.Name}");
+                Program.ConsoleColorWriteLine($"/wClass:/e {ps.PlayerClass}\n");
 
-                Program.ConsoleColorWrite("Experience: ", ConsoleColor.White);
-                Console.WriteLine("(" + ps.Experience + "/" + ps.MaxExperience + ")\n");
 
-                Program.ConsoleColorWrite("Health: ", ConsoleColor.Red);
-                Console.WriteLine("(" + ps.Health + "/" + ps.MaxHealth + ")");
+                Program.ConsoleColorWriteLine($"/rHealth:/e ({ps.Health}/{ps.MaxHealth})");
+                Program.ConsoleColorWriteLine($"/cMana:/e ({ps.Mana}/{ps.MaxMana})\n");
+                Program.ConsoleColorWriteLine($"/yLevel:/e {ps.Level + (ps.Level == 50 ? " (Max Level)" : "")}");
+                Program.ConsoleColorWriteLine($"/wExperience:/e ({ps.Experience}/{ps.MaxExperience})\n");
 
-                Program.ConsoleColorWrite("Mana:", ConsoleColor.Blue, ConsoleColor.DarkGray);
-                Console.WriteLine(" (" + ps.Mana + "/" + ps.MaxMana + ")\n");
+                
 
-                Program.ConsoleColorWrite("Power: ", ConsoleColor.DarkRed);
-                Console.WriteLine(ps.Power);
+                Program.ConsoleColorWriteLine($"/RPower:/e {ps.Power}");
+                Program.ConsoleColorWriteLine($"/gNimble:/e {ps.Nimble}");
+                Program.ConsoleColorWriteLine($"/cMagic:/e {ps.Magic}");
+                Program.ConsoleColorWriteLine($"/YCunning:/e {ps.Cunning}\n\n");
 
-                Program.ConsoleColorWrite("Nimble: ", ConsoleColor.Green);
-                Console.WriteLine(ps.Nimble);
-
-                Program.ConsoleColorWrite("Magic: ", ConsoleColor.Cyan);
-                Console.WriteLine(ps.Magic);
-
-                Program.ConsoleColorWrite("Cunning: ", ConsoleColor.DarkYellow);
-                Console.WriteLine(ps.Cunning + "\n\n");
-
-                Program.ConsoleColorWrite("Available Skill Points: ", ConsoleColor.White);
-                Console.WriteLine(ps.AvailableSkillPoints + "\n");
+                Program.ConsoleColorWriteLine($"/wAvailable Skill Points:/e {ps.AvailableSkillPoints}");
 
                 Menu.WriteOnBottomLine("What would you like to do?\n", 4, true);
-                Menu.WriteOnBottomLine("(1) Enter Battle (2) Purchase Items (3) Save Game" + ((ps.AvailableSkillPoints > 0) ? " (4) Spend Skill Points " : " ") + "(99) Exit", 3, true);
+                Menu.WriteOnBottomLine("/w(1)/e Enter Battle /w(2)/e Purchase Items /w(3)/e Save Game" + ((ps.AvailableSkillPoints > 0) ? " /w(4)/e Spend Skill Points " : " ") + "/w(99)/e Exit", 3, true);
                 Menu.WriteOnBottomLine(">> ");
                 var x = Console.ReadLine();
                 if (int.TryParse(x, out selection)) {
@@ -106,11 +96,11 @@ namespace RPG_Game {
                 if (action == "1") {
                     int damageAmount = 0;
                     if (ps.PlayerClass == PlayerClass.Warrior) {
-                        damageAmount = Program.IntRNG(ps.Power - Program.IntRNG(1, 3), ps.Power + Program.IntRNG(1, 3));
+                        damageAmount = Program.InclusiveIntRNG(ps.Power - Program.InclusiveIntRNG(1, 3), ps.Power + Program.InclusiveIntRNG(1, 3));
                     } else if (ps.PlayerClass == PlayerClass.Mage) {
-                        damageAmount = Program.IntRNG(ps.Magic - Program.IntRNG(1, 3), ps.Magic + Program.IntRNG(1, 3));
+                        damageAmount = Program.InclusiveIntRNG(ps.Magic - Program.InclusiveIntRNG(1, 3), ps.Magic + Program.InclusiveIntRNG(1, 3));
                     } else if (ps.PlayerClass == PlayerClass.Archer) {
-                        damageAmount = Program.IntRNG(ps.Nimble - Program.IntRNG(1, 3), ps.Nimble + Program.IntRNG(1, 3));
+                        damageAmount = Program.InclusiveIntRNG(ps.Nimble - Program.InclusiveIntRNG(1, 3), ps.Nimble + Program.InclusiveIntRNG(1, 3));
                     }
                     Animation.RunAnimation(textToType: "\nYou have dealt " + damageAmount + " damage!\n");
                     if (damageAmount < e.Health)
@@ -160,7 +150,7 @@ namespace RPG_Game {
             }
 
             if (!playerEscapeStatus) {
-                float experienceGain = (Program.IntRNG((e.EnemyDifficulty + 1) * 2, (e.EnemyDifficulty + 1) * 4) + Program.FloatRNG());
+                float experienceGain = (Program.InclusiveIntRNG((e.EnemyDifficulty + 1) * 2, (e.EnemyDifficulty + 1) * 4) + Program.FloatRNG());
                 experienceGain = (float)Math.Round(experienceGain, 2);
 
                 if (ps.Health > 0 && e.Health <= 0) {
@@ -213,7 +203,7 @@ namespace RPG_Game {
                     Console.WriteLine("\nYour player has leveled up!!! You now have " + ps.AvailableSkillPoints + " skill points to spend!\n");
                 } else {
                     if ((Program.FloatRNG() > 0.4) && (ps.Health != ps.MaxHealth) && (ps.Health > 0)) {
-                        int healthRecovered = Program.IntRNG(1, (ps.MaxHealth / 2 >= 2) ? (ps.MaxHealth / 2) + 3 : (ps.MaxHealth / 2));
+                        int healthRecovered = Program.InclusiveIntRNG(1, (ps.MaxHealth / 2 >= 2) ? (ps.MaxHealth / 2) + 3 : (ps.MaxHealth / 2));
                         if (ps.Health + healthRecovered > ps.MaxHealth)
                             ps.AlterHealth(Operation.Set, ps.MaxHealth);
                         else
@@ -339,7 +329,8 @@ namespace RPG_Game {
             
         }
         public void SaveGame() {
-            string gamesave = "class = " + ps.PlayerClass.ToString() + Environment.NewLine
+            string gamesave = "name = " + ps.Name + Environment.NewLine
+                            + "class = " + ps.PlayerClass.ToString() + Environment.NewLine
                             + "health = " + ps.Health + Environment.NewLine
                             + "maxHealth = " + ps.MaxHealth + Environment.NewLine
                             + "mana = " + ps.Mana + Environment.NewLine

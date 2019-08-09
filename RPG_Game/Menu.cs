@@ -55,7 +55,7 @@ namespace RPG_Game {
         private void LoadScreen(bool useAnimation) {
             Console.Clear();
             if (useAnimation) {
-                Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\tWelcome to an\n"));
+                Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t/wWelcome to an/e\n"));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"____/\\\\\\\\\______/\\\\\\\\\\\\\_______/\\\\\\\\\\\\_        "));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @" __/\\\///////\\\___\/\\\/////////\\\___/\\\//////////__       "));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"  _\/\\\_____\/\\\___\/\\\_______\/\\\__/\\\_____________      "));
@@ -69,7 +69,7 @@ namespace RPG_Game {
                 Animation.PlayQueue();
                 playMenuAnimation = false;
             } else {
-                Console.WriteLine("\tWelcome to an\n");
+                Program.ConsoleColorWriteLine("\t/wWelcome to an/e\n");
                 Console.WriteLine(@"____/\\\\\\\\\______/\\\\\\\\\\\\\_______/\\\\\\\\\\\\_        ");
                 Console.WriteLine(@" __/\\\///////\\\___\/\\\/////////\\\___/\\\//////////__       ");
                 Console.WriteLine(@"  _\/\\\_____\/\\\___\/\\\_______\/\\\__/\\\_____________      ");
@@ -79,36 +79,39 @@ namespace RPG_Game {
                 Console.WriteLine(@"      _\/\\\_____\//\\\__\/\\\_____________\/\\\_______\/\\\_  ");
                 Console.WriteLine(@"       _\/\\\______\//\\\_\/\\\_____________\//\\\\\\\\\\\\/__ ");
                 Console.WriteLine(@"        _\///________\///__\///_______________\////////////____" + "\n");
-                Console.WriteLine("\t\t\t\t\tGame.\n\n\n");
+                Console.WriteLine("\t\t\t\t\t/wGame./e\n\n\n");
             }
-            Console.WriteLine("(1) New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "(2) Load Game " : "") + "(99) Exit");
+            Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
         }
 
         private bool NewGame() {
-            string[] classDescriptions = { "Warrior: What some call a fearsome brute, this class thrives in health and strength.\n",
-                                           "Mage: A powerful and deadly force, these people specialize in the art of magic.\n",
-                                           "Archer: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"};
+            string[] classDescriptions = { "/rWarrior/e: What some call a fearsome brute, this class thrives in health and strength.\n",
+                                           "/cMage/e: A powerful and deadly force, these people specialize in the art of magic.\n",
+                                           "/gArcher/e: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"};
+            string[] adjectives = { "Fantastic", "Marvelous", "Superb", "Sensational" };
 
             string playerClass = "";
+            string playerName = "";
             PlayerClass pc = PlayerClass.Undefined;
 
-            bool animationHasBeenPlayed = false;
+            bool firstAnimationHasBeenPlayed = false,
+                 secondAnimationHasBeenPlayed = false;
 
             while (playerClass == "") {
                 Console.Clear();
 
-                if (!animationHasBeenPlayed) {
+                if (!firstAnimationHasBeenPlayed) {
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[0] + "\n"));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[1] + "\n"));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[2] + "\n\n"));
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "(use the command \"back\" to return to the previous screen)\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "(use the command \"/wback/e\" to return to the previous screen)\n"));
                     Animation.PlayQueue();
-                    animationHasBeenPlayed = true;
+                    firstAnimationHasBeenPlayed = true;
                 } else {
-                    Console.WriteLine(classDescriptions[0] + "\n");
-                    Console.WriteLine(classDescriptions[1] + "\n");
-                    Console.WriteLine(classDescriptions[2] + "\n\n");
-                    Console.WriteLine("(use the command \"back\" to return to the previous screen)\n");
+                    Program.ConsoleColorWriteLine(classDescriptions[0] + "\n");
+                    Program.ConsoleColorWriteLine(classDescriptions[1] + "\n");
+                    Program.ConsoleColorWriteLine(classDescriptions[2] + "\n\n");
+                    Program.ConsoleColorWriteLine("(use the command \"/wback/e\" to return to the previous screen)\n");
                 }
 
                 WriteOnBottomLine("Please Choose Your Class:\n", 2);
@@ -123,8 +126,46 @@ namespace RPG_Game {
                     Console.ReadKey();
                 }
             }
+
+            int adjectiveChosen = Program.IntRNG(0, adjectives.Length);
+
+            while (playerName == "")
+            {
+                Console.Clear();
+
+                if (!secondAnimationHasBeenPlayed)
+                {
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, $"Greetings Adventurer! Ah, so you've decided to be a /w{Program.ToProperString(playerClass)}/e, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n"));
+                    Animation.Queue(new Animation(AnimationType.Dot, 20));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "\nSpeaking of which, what is your name adventurer?\n"));
+                    Animation.PlayQueue();
+                    secondAnimationHasBeenPlayed = true;
+                }
+                else
+                {
+                    Program.ConsoleColorWriteLine($"Greetings Adventurer! Ah, so you've decided to be a /w{Program.ToProperString(playerClass)}/e, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
+                    Console.WriteLine("Speaking of which, what is your name adventurer?\n");
+                }
+                
+                WriteOnBottomLine("Character Name:\n", 2);
+                WriteOnBottomLine(">> ");
+                string pName = Console.ReadLine();
+
+                if (pName == string.Empty || pName.Length < 2)
+                    continue;
+                
+                Console.Clear();
+                Program.ConsoleColorWriteLine($"Are you sure you want to name your character \"/w{pName}/e\"? (y/N)");
+                WriteOnBottomLine(">> ");
+                string choice = Console.ReadLine();
+                if (choice.ToLowerInvariant() == "y")
+                {
+                    playerName = pName;
+                    break;
+                }
+            }
             if (playerClass == "warrior") { pc = PlayerClass.Warrior; } else if (playerClass == "mage") { pc = PlayerClass.Mage; } else if (playerClass == "archer") { pc = PlayerClass.Archer; }
-            stats = new PlayerStats(pc);
+            stats = new PlayerStats(pc, playerName);
             return true;
         }
 
@@ -173,7 +214,7 @@ namespace RPG_Game {
             int y = Console.CursorTop;
             Console.CursorTop = Console.WindowTop + Console.WindowHeight - offset;
 
-            Console.Write(text);
+            Program.ConsoleColorWrite(text);
             // Restore previous position
             if (restoreCursorPosition)
                 Console.SetCursorPosition(x, y);

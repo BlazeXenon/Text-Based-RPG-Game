@@ -1,0 +1,29 @@
+﻿
+
+Guide on how coloring text works with the Animation Class:
+
+There are custom escape characters mapped to each possible console color, here are a list of them and what type map too:
+
+	"/0" = ConsoleColor.Black
+	"/B" = ConsoleColor.DarkBlue
+	"/G" = ConsoleColor.DarkGreen
+	"/C" = ConsoleColor.DarkCyan
+	"/R" = ConsoleColor.DarkRed
+	"/M" = ConsoleColor.DarkMagenta
+	"/Y" = ConsoleColor.DarkYellow
+	"/A" = ConsoleColor.DarkGray
+	"/b" = ConsoleColor.Blue
+	"/g" = ConsoleColor.Green
+	"/c" = ConsoleColor.Cyan
+	"/r" = ConsoleColor.Red
+	"/m" = ConsoleColor.Magenta
+	"/y" = ConsoleColor.Yellow
+	"/w" = ConsoleColor.White
+	"/e" = ConsoleColor.Gray
+
+
+The way you use them is you include them in your string and they are autoparsed by the Animation class. Here is an example:
+
+	"Hello World! /rI am a demon/e!"
+
+This produces "Hello World! " in grey text, "I am a demon" in red text, and "!" in grey text.  

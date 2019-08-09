@@ -6,6 +6,8 @@ namespace RPG_Game {
 
 
         //Game Variable Getters/Setters
+        public string Name { get { return GameVariables["name"].ToString(); } private set { GameVariables["name"] = value; } }
+
         public int Health { get { return (StringToInt(GameVariables["health"].ToString(), out int x) ? x : -1); } private set { GameVariables["health"] = value; } }
         public int MaxHealth { get { return (StringToInt(GameVariables["maxHealth"].ToString(), out int x) ? x : -1); } private set { GameVariables["maxHealth"] = value; } }
 
@@ -49,30 +51,31 @@ namespace RPG_Game {
             AddDefaultVariables();
         }
 
-        public PlayerStats(PlayerClass pc) {
+        public PlayerStats(PlayerClass pc, string playerName) {
+            GameVariables.Add("name", playerName);
             GameVariables.Add("class", pc);
             GameVariables.Add("level", 1);
             if (pc == PlayerClass.Warrior) {
-                GameVariables.Add("health", Program.IntRNG(10, 13));
-                GameVariables.Add("mana", Program.IntRNG(3, 6));
-                GameVariables.Add("power", Program.IntRNG(7, 10));
-                GameVariables.Add("nimble", Program.IntRNG(1, 5));
-                GameVariables.Add("magic", Program.IntRNG(1, 5));
-                GameVariables.Add("cunning", Program.IntRNG(1, 5));
+                GameVariables.Add("health", Program.InclusiveIntRNG(10, 13));
+                GameVariables.Add("mana", Program.InclusiveIntRNG(3, 6));
+                GameVariables.Add("power", Program.InclusiveIntRNG(7, 10));
+                GameVariables.Add("nimble", Program.InclusiveIntRNG(1, 5));
+                GameVariables.Add("magic", Program.InclusiveIntRNG(1, 5));
+                GameVariables.Add("cunning", Program.InclusiveIntRNG(1, 5));
             } else if (pc == PlayerClass.Mage) {
-                GameVariables.Add("health", Program.IntRNG(5, 7));
-                GameVariables.Add("mana", Program.IntRNG(8, 13));
-                GameVariables.Add("power", Program.IntRNG(1, 5));
-                GameVariables.Add("nimble", Program.IntRNG(1, 5));
-                GameVariables.Add("magic", Program.IntRNG(9, 14));
-                GameVariables.Add("cunning", Program.IntRNG(1, 5));
+                GameVariables.Add("health", Program.InclusiveIntRNG(5, 7));
+                GameVariables.Add("mana", Program.InclusiveIntRNG(8, 13));
+                GameVariables.Add("power", Program.InclusiveIntRNG(1, 5));
+                GameVariables.Add("nimble", Program.InclusiveIntRNG(1, 5));
+                GameVariables.Add("magic", Program.InclusiveIntRNG(9, 14));
+                GameVariables.Add("cunning", Program.InclusiveIntRNG(1, 5));
             } else if (pc == PlayerClass.Archer) {
-                GameVariables.Add("health", Program.IntRNG(6, 9));
-                GameVariables.Add("mana", Program.IntRNG(3, 6));
-                GameVariables.Add("power", Program.IntRNG(2, 6));
-                GameVariables.Add("nimble", Program.IntRNG(8, 13));
-                GameVariables.Add("magic", Program.IntRNG(1, 5));
-                GameVariables.Add("cunning", Program.IntRNG(1, 5));
+                GameVariables.Add("health", Program.InclusiveIntRNG(6, 9));
+                GameVariables.Add("mana", Program.InclusiveIntRNG(3, 6));
+                GameVariables.Add("power", Program.InclusiveIntRNG(2, 6));
+                GameVariables.Add("nimble", Program.InclusiveIntRNG(8, 13));
+                GameVariables.Add("magic", Program.InclusiveIntRNG(1, 5));
+                GameVariables.Add("cunning", Program.InclusiveIntRNG(1, 5));
             }
             GameVariables.Add("maxHealth", Health);
             GameVariables.Add("maxMana", Mana);
@@ -133,6 +136,7 @@ namespace RPG_Game {
         }
 
         private void AddDefaultVariables() {
+            GameVariables.Add("name", string.Empty);
             GameVariables.Add("class", PlayerClass.Undefined);
             GameVariables.Add("health", -1);
             GameVariables.Add("maxHealth", -1);

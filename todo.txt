@@ -1,0 +1,3 @@
+scale enemies better
+customize random encounters
+	Change text from "attack" to "journey"

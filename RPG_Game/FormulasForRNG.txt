@@ -1,0 +1,15 @@
+﻿
+This file holds all the mathematical formulas for scaling the game till level 50.
+
+
+Max Experience = 2^(1.0/8.0 * Level) * 10
+
+Enemy Health = RNG( LOWER BOUND: minimum_health + enemy_difficulty + 1 |||||| UPPER BOUND: minimum_health + (constant_increasing_health_interval * (enemy_difficulty + 1) );
+
+Enemy Power = RNG( LOWER BOUND: minimum_power + enemy_difficulty + 1 |||||| UPPER BOUND: minimum_power + (minimum_power * (enemy_difficulty + 1)) )
+
+Enemy Gold Yield RNG( LOWER BOUND: (current_health + current_power) * 5 ||||||| UPPER BOUND: (current_health + current_power) * 8 );
+
+Attack Calculations = RNG ( power + RNG(-3, 3) )
+
+

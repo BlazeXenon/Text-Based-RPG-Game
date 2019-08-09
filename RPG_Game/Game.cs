@@ -89,8 +89,8 @@ namespace RPG_Game {
 
             while (e.Health > 0 && ps.Health > 0 && !playerEscapeStatus) {
                 bool ShouldEnemyAttackPlayer = true;
-                Console.WriteLine("\n\nYou: (Health: " + ps.Health + " Mana: " + ps.Mana + ") ||| Enemy: (" + e.Health + ")");
-                Console.WriteLine("\n(1) Attack" + ((timesPlayerCanAttemptFlee > 0) ? " (2) Flee" : ""));
+                Program.ConsoleColorWriteLine($"\n\n/wYou:/e (/rHealth:/e {ps.Health} /cMana:/e {ps.Mana}) ||| /wEnemy:/e (/rHealth:/e {e.Health})");
+                Program.ConsoleColorWriteLine("\n/w(1)/e Attack" + ((timesPlayerCanAttemptFlee > 0) ? " /w(2)/e Flee" : ""));
                 Console.Write(">> ");
                 var action = Console.ReadLine().TrimEnd();
                 if (action == "1") {
@@ -102,18 +102,18 @@ namespace RPG_Game {
                     } else if (ps.PlayerClass == PlayerClass.Archer) {
                         damageAmount = Program.InclusiveIntRNG(ps.Nimble - Program.InclusiveIntRNG(1, 3), ps.Nimble + Program.InclusiveIntRNG(1, 3));
                     }
-                    Animation.RunAnimation(textToType: "\nYou have dealt " + damageAmount + " damage!\n");
+                    Animation.RunAnimation(textToType: $"\nYou have dealt /w{damageAmount} damage/e!\n");
                     if (damageAmount < e.Health)
                         Animation.RunAnimation(AnimationType.Dot, 200);
                     e.Damage(damageAmount);
                 } else if (action == "2") {
                     if (timesPlayerCanAttemptFlee > 0) {
                         timesPlayerCanAttemptFlee--;
-                        Animation.RunAnimation(textToType: "\nYou Attempt to Escape\n");
+                        Animation.RunAnimation(textToType: "\nYou Attempt to Escape\n", skipLine: false);
                         Animation.RunAnimation(AnimationType.Dot, 200);
                         Console.WriteLine();
                         if (Program.FloatRNG() > 0.5) {
-                            Animation.RunAnimation(textToType: "The escape attempt was successful!\n");
+                            Animation.RunAnimation(textToType: "The escape attempt was /wsuccessful/e!\n");
                             playerEscapeStatus = true;
                             ShouldEnemyAttackPlayer = false;
                         } else {
@@ -123,7 +123,7 @@ namespace RPG_Game {
                                 ShouldEnemyAttackPlayer = false;
                             } else {
                                 int enemyDamage = e.Attack();
-                                Animation.RunAnimation(textToType: "While attempting to escape, your enemy grabbed you and dealt " + enemyDamage + " damage to you!");
+                                Animation.RunAnimation(textToType: $"While attempting to escape, your enemy grabbed you and dealt /w{enemyDamage} damage/e to you!");
                                 ps.AlterHealth(Operation.Subtract, enemyDamage);
                                 ShouldEnemyAttackPlayer = false;
                             }
@@ -144,7 +144,7 @@ namespace RPG_Game {
 
                 if (ShouldEnemyAttackPlayer) {
                     int enemyDamage = e.Attack();
-                    Animation.RunAnimation(textToType: "\nThe enemy lashes back and deals " + enemyDamage + " damage to you!");
+                    Animation.RunAnimation(textToType: $"\nThe enemy lashes back and deals /w{enemyDamage} damage/e to you!");
                     ps.AlterHealth(Operation.Subtract, enemyDamage);
                 }
             }
@@ -154,15 +154,32 @@ namespace RPG_Game {
                 experienceGain = (float)Math.Round(experienceGain, 2);
 
                 if (ps.Health > 0 && e.Health <= 0) {
+
+                    Animation.Queue(new Animation(AnimationType.Dot, 200));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nCongrats! You have defeated your foe,", false));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 200, " ", false));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 20, $"and as a result you have gained /w{experienceGain}/e experience!\n"));
+
+                    Animation.PlayQueue();
+                    /*
                     Animation.RunAnimation(AnimationType.Dot, 200);
                     Animation.RunAnimation(textToType: "\nCongrats! You have defeated your foe,", skipLine: false);
                     Animation.RunAnimation(AnimationType.TextTyping, 200, " ", false);
-                    Animation.RunAnimation(textToType: "and as a result you have gained " + experienceGain + " experience!\n");
+                    Animation.RunAnimation(textToType: "and as a result you have gained " + experienceGain + " experience!\n");*/
                     ps.AlterExperience(Operation.Add, experienceGain);
                 } else if (ps.Health <= 0) {
+
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\n\nYou have died in combat\n"));
+                    Animation.Queue(new Animation(AnimationType.Dot, 100));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nYou can begin a new game or start from your previous save.\n"));
+                    //Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nStart from previous save? (Y/n)\n>> ", false));
+
+                    Animation.PlayQueue();
+
+                    /*
                     Animation.RunAnimation(textToType: "\n\nYou have died in combat\n");
                     Animation.RunAnimation(AnimationType.Dot, 100);
-                    Animation.RunAnimation(textToType: "\nYou can begin a new game or start from your previous save.\n");
+                    Animation.RunAnimation(textToType: "\nYou can begin a new game or start from your previous save.\n");*/
                     Animation.RunAnimation(textToType: "\nStart from previous save? (Y/n)\n>> ", skipLine: false);
                     var choice = Console.ReadLine();
                     if (choice.ToLowerInvariant() == "n") {
@@ -200,20 +217,22 @@ namespace RPG_Game {
                     ps.AlterSkillPoints(Operation.Add, 3 * level_up_amount);
 
                     Animation.RunAnimation(AnimationType.Dot, 200);
-                    Console.WriteLine("\nYour player has leveled up!!! You now have " + ps.AvailableSkillPoints + " skill points to spend!\n");
+                    Program.ConsoleColorWriteLine($"\nYour player has leveled up!!! You now have /w{ps.AvailableSkillPoints}/e skill points to spend!\n");
                 } else {
-                    if ((Program.FloatRNG() > 0.4) && (ps.Health != ps.MaxHealth) && (ps.Health > 0)) {
-                        int healthRecovered = Program.InclusiveIntRNG(1, (ps.MaxHealth / 2 >= 2) ? (ps.MaxHealth / 2) + 3 : (ps.MaxHealth / 2));
+                    if ((Program.FloatRNG() > 0.4) && (ps.Health != ps.MaxHealth) && (ps.Health > 0))
+                    {
+                        int healthRecovered = Program.InclusiveIntRNG(1,
+                            (ps.MaxHealth / 2 >= 2) ? (ps.MaxHealth / 2) + 3 : (ps.MaxHealth / 2));
                         if (ps.Health + healthRecovered > ps.MaxHealth)
                             ps.AlterHealth(Operation.Set, ps.MaxHealth);
                         else
                             ps.AlterHealth(Operation.Add, healthRecovered);
                         Animation.RunAnimation(AnimationType.Dot, 200);
-                        Animation.RunAnimation(textToType: "\nYou have managed to recover some health! (" + healthRecovered + " health).\n");
+                        Animation.RunAnimation(textToType: $"\nYou have managed to recover some health! (/w{healthRecovered}/e health).\n");
                     }
                 }
 
-                Animation.RunAnimation(textToType: "\n<Press any key to return to town>", skipLine: false);
+                Animation.RunAnimation(textToType: "\n/A<Press any key to return to town>/e", skipLine: false);
                 Console.ReadKey();
             }
         }
@@ -221,18 +240,24 @@ namespace RPG_Game {
         private void AssignSkillPoints() {
             bool isSpendingSkillPoints = true;
             string[] approvedSkillsToUpgrade = { "health", "mana", "power", "nimble", "magic", "cunning" };
+            string[] greetingStrings = { "Come to train your skills, have you?", "What can I do for you?", "What are you looking to improve upon today?"};
             Console.Clear();
             if (!ps.HasPreviouslyAssignedSkillPoints) {
                 Animation.RunAnimation(AnimationType.Dot, 400);
                 Animation.RunAnimation(AnimationType.TextTyping, 50, "\n*You hear a voice off to the side*\n");
                 Animation.RunAnimation(AnimationType.Dot, 300);
-                Animation.RunAnimation(AnimationType.TextTyping, 50, "\nHello Adventurer! I am Elise, the training guide in this town.\n" +
-                                                            "It seems as though you have a prospect to get stronger!\n" +
-                                                            "\n*You are surprised but nod in agreement*\n\n" +
-                                                            "Great, you are showing promise already!\nNow walk over here with me and I'll show you how to get stronger.");
+                Animation.RunAnimation(AnimationType.TextTyping, 50, "\nHello Adventurer! I am Elise, the training guide in this town.\n" + 
+                                                                     "It seems as though you have a prospect to get stronger!\n\n" +
+                                                                     "\t*You are surprised but nod in agreement*\n\n" +
+                                                                     "Before we continue, tell me, what is your name adventurer?\n\n" + 
+                                                                     $"\t*You tell Elise that your name is /w{ps.Name}/e*\n\n" + 
+                                                                     "Ah, a wonderful name indeed!\nI'm sure we'll be fantastic friends for many years to come!\n" +
+                                                                     "\nNow walk over here with me and I'll show you how to get stronger.");
                 ps.HasPreviouslyAssignedSkillPoints = true;
                 Console.ReadKey();
             }
+
+            int gsn = Program.IntRNG(0, greetingStrings.Length);
 
             bool firstLoop = true;
             while (isSpendingSkillPoints) {
@@ -242,13 +267,15 @@ namespace RPG_Game {
                 // Basically used to prettify the skill menu.
 
                 if (firstLoop) {
-                    Animation.RunAnimation(textToType: "Elise: Greetings Adventurer! Come to train your skills, have you?\n");
+                    Animation.RunAnimation(textToType: $"/wElise: Greetings {ps.Name}! {greetingStrings[gsn]}/e\n");
                     firstLoop = false;
                 } else {
-                    Console.WriteLine("Elise: Greetings Adventurer! Come to train your skills, have you?\n");
+                    Program.ConsoleColorWriteLine($"/wElise: Greetings {ps.Name}! {greetingStrings[gsn]}/e\n");
                 }
 
-                Console.Write("You have " + ps.AvailableSkillPoints + " skill points to spend.\n\nYou can spend them by ");
+                Program.ConsoleColorWriteLine($"You have /w{ps.AvailableSkillPoints}/e skill points to spend.\n\nYou can spend them by /wtyping the stat/e you would like to spend them on\nthen /wtyping the amount you would like to spend/e.");
+                Program.ConsoleColorWriteLine("Once you are finished type \"/wback/e\" to reenter the town.");
+                /*Console.Write("You have " + ps.AvailableSkillPoints + " skill points to spend.\n\nYou can spend them by ");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("typing the chosen attribute ");
                 Console.ResetColor();
@@ -256,11 +283,11 @@ namespace RPG_Game {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("typing the amount you would like to spend");
                 Console.ResetColor();
-                Console.WriteLine(", then once you are finished\n type \"back\" to reenter to the town.");
-                Console.WriteLine("(E.g.: power 5)\n");
+                Console.WriteLine(", then once you are finished\n type \"back\" to reenter to the town.");*/
+                Program.ConsoleColorWriteLine("(E.g.: /Rpower/e /w3/e)\n");
                 Console.WriteLine("The available stats are as follows:\n");
-                Console.WriteLine("\thealth, mana, power, nimble, magic, cunning\n");
-                Console.WriteLine($"Your Current Stats:\n\tMax Health: {ps.MaxHealth}\n\tMax Mana: {ps.MaxMana}\n\tPower: {ps.Power}\n\tNimble: {ps.Nimble}\n\tMagic: {ps.Magic}\n\tCunning: {ps.Cunning}\n\t");
+                Program.ConsoleColorWriteLine("\t/rhealth/e, /cmana/e, /Rpower/e, /gnimble/e, /cmagic/e, /Ycunning/e\n");
+                Program.ConsoleColorWriteLine($"Your Current Stats:\n\n\t/rMax Health/e: {ps.MaxHealth}\n\t/cMax Mana/e: {ps.MaxMana}\n\n\t/RPower/e: {ps.Power}\n\t/gNimble/e: {ps.Nimble}\n\t/cMagic/e: {ps.Magic}\n\t/YCunning/e: {ps.Cunning}\n\t");
                 Console.Write(">> ");
 
                 var userInput = Console.ReadLine();

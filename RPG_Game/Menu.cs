@@ -128,6 +128,22 @@ namespace RPG_Game {
             }
 
             int adjectiveChosen = Program.IntRNG(0, adjectives.Length);
+            string greetingStr = "";
+            if (playerClass == "warrior")
+            {
+                pc = PlayerClass.Warrior;
+                greetingStr = "/rWarrior/e";
+            } 
+            else if (playerClass == "mage")
+            {
+                pc = PlayerClass.Mage;
+                greetingStr = "/cMage/e";
+            } 
+            else if (playerClass == "archer")
+            {
+                pc = PlayerClass.Archer;
+                greetingStr = "/gArcher/e";
+            }
 
             while (playerName == "")
             {
@@ -135,16 +151,16 @@ namespace RPG_Game {
 
                 if (!secondAnimationHasBeenPlayed)
                 {
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, $"Greetings Adventurer! Ah, so you've decided to be a /w{Program.ToProperString(playerClass)}/e, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, $"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n"));
                     Animation.Queue(new Animation(AnimationType.Dot, 20));
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "\nSpeaking of which, what is your name adventurer?\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "\nSpeaking of which, what is your /wname/e adventurer?\n"));
                     Animation.PlayQueue();
                     secondAnimationHasBeenPlayed = true;
                 }
                 else
                 {
-                    Program.ConsoleColorWriteLine($"Greetings Adventurer! Ah, so you've decided to be a /w{Program.ToProperString(playerClass)}/e, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
-                    Console.WriteLine("Speaking of which, what is your name adventurer?\n");
+                    Program.ConsoleColorWriteLine($"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
+                    Console.WriteLine("Speaking of which, what is your /wname/e adventurer?\n");
                 }
                 
                 WriteOnBottomLine("Character Name:\n", 2);
@@ -164,7 +180,7 @@ namespace RPG_Game {
                     break;
                 }
             }
-            if (playerClass == "warrior") { pc = PlayerClass.Warrior; } else if (playerClass == "mage") { pc = PlayerClass.Mage; } else if (playerClass == "archer") { pc = PlayerClass.Archer; }
+            
             stats = new PlayerStats(pc, playerName);
             return true;
         }

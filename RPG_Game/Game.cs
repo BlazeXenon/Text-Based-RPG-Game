@@ -7,6 +7,8 @@ using System.Windows.Forms;
 namespace RPG_Game {
     public class Game {
 
+        public static ForestArea forestArea;
+
         public bool ShouldGameRestart { get { return shouldGameRestart; } private set { shouldGameRestart = value; } }
 
         private bool shouldGameRestart = false;
@@ -16,6 +18,7 @@ namespace RPG_Game {
             this.ps = ps;
             SaveGame();
             shouldGameRestart = BeginGame();
+            forestArea = new ForestArea();
         }
 
         private bool BeginGame() {
@@ -61,15 +64,17 @@ namespace RPG_Game {
                             AssignSkillPoints();
                         }
                     } else if (selection == 99) {
-                        if (DoesSaveDataMatchCurrentData()) {
+                        if (DoesSaveDataMatchCurrentData())
+                        {
                             Environment.Exit(0);
-                        } else {
+                        }
+                        else
+                        {
                             Console.WriteLine("Are you sure you want to quit? (y/N)\nNote: Your save data doesn't match your current stats.");
                             Console.Write(">> ");
                             if (Console.ReadLine().ToLowerInvariant() == "y")
                                 Environment.Exit(0);
                         }
-
                     }
                     selection = -1;
                 } else {
@@ -79,7 +84,11 @@ namespace RPG_Game {
             }
         }
 
-        private void Battle() {
+        private void Battle()
+        {
+            //Area currentArea = GetCurrentArea();
+            //BaseEnemy currentEnemy = currentArea.GenerateEnemy(ps.CurrentDifficultRating());
+
             Console.Clear();
             Enemy e = new Enemy(ps.CurrentDifficultRating());
             int timesPlayerCanAttemptFlee = 1;
@@ -388,6 +397,34 @@ namespace RPG_Game {
                 }
             }
             return true;
+        }
+
+        private Area GetCurrentArea()
+        {
+            if (ps.Level >= 1 && ps.Level < 10) // 1 - 9
+            {
+                return forestArea;
+            }
+            else if (ps.Level >= 10 && ps.Level < 20) // 10 - 19
+            {
+                return forestArea;
+            }
+            else if (ps.Level >= 20 && ps.Level < 30) // 20 - 29
+            {
+                return forestArea;
+            }
+            else if (ps.Level >= 30 && ps.Level < 40) // 30 - 39
+            {
+                return forestArea;
+            }
+            else if (ps.Level >= 40 && ps.Level <= 50) // 40 - 50
+            {
+                return forestArea;
+            }
+            else
+            {
+                throw new NullReferenceException("Your level is not within 1-50! Corrupt data or Cheating.");
+            }
         }
     }
 }

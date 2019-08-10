@@ -86,17 +86,20 @@ namespace RPG_Game {
 
         private void Battle()
         {
-            //Area currentArea = GetCurrentArea();
-            //BaseEnemy currentEnemy = currentArea.GenerateEnemy(ps.CurrentDifficultRating());
-
             Console.Clear();
+
+            Area currentArea = GetCurrentArea();
+            BaseEnemy currentEnemy = currentArea.GenerateEnemy(ps.CurrentDifficultRating());
+
+
             Enemy e = new Enemy(ps.CurrentDifficultRating());
             int timesPlayerCanAttemptFlee = 1;
             bool playerEscapeStatus = false;
 
             e.WriteOutBattleText();
 
-            while (e.Health > 0 && ps.Health > 0 && !playerEscapeStatus) {
+            while (e.Health > 0 && ps.Health > 0 && !playerEscapeStatus) 
+            {
                 bool ShouldEnemyAttackPlayer = true;
                 Program.ConsoleColorWriteLine($"\n\n/wYou:/e (/rHealth:/e {ps.Health} /cMana:/e {ps.Mana}) ||| /wEnemy:/e (/rHealth:/e {e.Health})");
                 Program.ConsoleColorWriteLine("\n/w(1)/e Attack" + ((timesPlayerCanAttemptFlee > 0) ? " /w(2)/e Flee" : ""));

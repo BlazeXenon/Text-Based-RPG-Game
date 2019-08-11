@@ -92,16 +92,16 @@ namespace RPG_Game {
             BaseEnemy currentEnemy = currentArea.GenerateEnemy(ps.CurrentDifficultRating());
 
 
-            Enemy e = new Enemy(ps.CurrentDifficultRating());
+            //Enemy e = new Enemy(ps.CurrentDifficultRating());
             int timesPlayerCanAttemptFlee = 1;
             bool playerEscapeStatus = false;
 
-            e.WriteOutBattleText();
+            currentEnemy.WriteOutBattleText();
 
-            while (e.Health > 0 && ps.Health > 0 && !playerEscapeStatus) 
+            while (currentEnemy.Health > 0 && ps.Health > 0 && !playerEscapeStatus) 
             {
                 bool ShouldEnemyAttackPlayer = true;
-                Program.ConsoleColorWriteLine($"\n\n/wYou:/e (/rHealth:/e {ps.Health} /cMana:/e {ps.Mana}) ||| /wEnemy:/e (/rHealth:/e {e.Health})");
+                Program.ConsoleColorWriteLine($"\n\n/wYou:/e (/rHealth:/e {ps.Health} /cMana:/e {ps.Mana}) ||| /wEnemy:/e (/rHealth:/e {currentEnemy.Health})");
                 Program.ConsoleColorWriteLine("\n/w(1)/e Attack" + ((timesPlayerCanAttemptFlee > 0) ? " /w(2)/e Flee" : ""));
                 Console.Write(">> ");
                 var action = Console.ReadLine().TrimEnd();
@@ -115,9 +115,9 @@ namespace RPG_Game {
                         damageAmount = Program.InclusiveIntRNG(ps.Nimble - Program.InclusiveIntRNG(1, 3), ps.Nimble + Program.InclusiveIntRNG(1, 3));
                     }
                     Animation.RunAnimation(textToType: $"\nYou have dealt /w{damageAmount} damage/e!\n");
-                    if (damageAmount < e.Health)
+                    if (damageAmount < currentEnemy.Health)
                         Animation.RunAnimation(AnimationType.Dot, 200);
-                    e.Damage(damageAmount);
+                    currentEnemy.Damage(damageAmount);
                 } else if (action == "2") {
                     if (timesPlayerCanAttemptFlee > 0) {
                         timesPlayerCanAttemptFlee--;
@@ -134,7 +134,7 @@ namespace RPG_Game {
                                 Animation.RunAnimation(textToType: "Luckily, you manage to see him just before he swings!");
                                 ShouldEnemyAttackPlayer = false;
                             } else {
-                                int enemyDamage = e.Attack();
+                                int enemyDamage = currentEnemy.Attack();
                                 Animation.RunAnimation(textToType: $"While attempting to escape, your enemy grabbed you and dealt /w{enemyDamage} damage/e to you!");
                                 ps.AlterHealth(Operation.Subtract, enemyDamage);
                                 ShouldEnemyAttackPlayer = false;
@@ -152,46 +152,39 @@ namespace RPG_Game {
                     Console.WriteLine();
                 }
 
-                if (e.Health <= 0) break;
+                if (currentEnemy.Health <= 0) break;
 
                 if (ShouldEnemyAttackPlayer) {
-                    int enemyDamage = e.Attack();
+                    int enemyDamage = currentEnemy.Attack();
                     Animation.RunAnimation(textToType: $"\nThe enemy lashes back and deals /w{enemyDamage} damage/e to you!");
                     ps.AlterHealth(Operation.Subtract, enemyDamage);
                 }
             }
 
             if (!playerEscapeStatus) {
-                float experienceGain = (Program.InclusiveIntRNG((e.EnemyDifficulty + 1) * 2, (e.EnemyDifficulty + 1) * 4) + Program.FloatRNG());
+                float experienceGain = (Program.InclusiveIntRNG((currentEnemy.EnemyDifficulty + 1) * 2, (currentEnemy.EnemyDifficulty + 1) * 4) + Program.FloatRNG());
                 experienceGain = (float)Math.Round(experienceGain, 2);
 
-                if (ps.Health > 0 && e.Health <= 0) {
+                if (ps.Health > 0 && currentEnemy.Health <= 0) {
 
                     Animation.Queue(new Animation(AnimationType.Dot, 200));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nCongrats! You have defeated your foe,", false));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 200, " ", false));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 20, $"and as a result you have gained /w{experienceGain}/e experience!\n"));
 
+                    Animation.Queue(new Animation(interval: 200, text: " "));
+                    Animation.Queue(new Animation(interval: 20, text: TextVariations.GetRandomGoldText(currentEnemy.GetEnemyGoldYield()) + "\n"));
+
                     Animation.PlayQueue();
-                    /*
-                    Animation.RunAnimation(AnimationType.Dot, 200);
-                    Animation.RunAnimation(textToType: "\nCongrats! You have defeated your foe,", skipLine: false);
-                    Animation.RunAnimation(AnimationType.TextTyping, 200, " ", false);
-                    Animation.RunAnimation(textToType: "and as a result you have gained " + experienceGain + " experience!\n");*/
                     ps.AlterExperience(Operation.Add, experienceGain);
+                    ps.AlterGold(Operation.Add, currentEnemy.GetEnemyGoldYield());
                 } else if (ps.Health <= 0) {
 
                     Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\n\nYou have died in combat\n"));
                     Animation.Queue(new Animation(AnimationType.Dot, 100));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nYou can begin a new game or start from your previous save.\n"));
-                    //Animation.Queue(new Animation(AnimationType.TextTyping, 20, "\nStart from previous save? (Y/n)\n>> ", false));
-
                     Animation.PlayQueue();
 
-                    /*
-                    Animation.RunAnimation(textToType: "\n\nYou have died in combat\n");
-                    Animation.RunAnimation(AnimationType.Dot, 100);
-                    Animation.RunAnimation(textToType: "\nYou can begin a new game or start from your previous save.\n");*/
                     Animation.RunAnimation(textToType: "\nStart from previous save? (Y/n)\n>> ", skipLine: false);
                     var choice = Console.ReadLine();
                     if (choice.ToLowerInvariant() == "n") {
@@ -204,9 +197,9 @@ namespace RPG_Game {
 
                 if ((ps.Level < ps.MAX_LEVEL) && (ps.Experience >= ps.MaxExperience)) {
 
-                    // Calculate a multi-level scenerio
                     int level_up_amount = 0;
 
+                    // Calculate a multi-level scenerio
                     while (ps.Experience >= ps.MaxExperience) {
                         // Subtract the max amount of experience from the current experience
                         // i.e. Level 1 - 19.6/10 => Level 1 - 9.6/10

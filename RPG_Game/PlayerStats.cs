@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 
 namespace RPG_Game {
-    public class PlayerStats {
-
-
+    public class PlayerStats
+    {
         //Game Variable Getters/Setters
         public string Name { get { return GameVariables["name"].ToString(); } private set { GameVariables["name"] = value; } }
 
@@ -22,6 +21,8 @@ namespace RPG_Game {
 
         public float Experience { get { return (StringToFloat(GameVariables["experience"].ToString(), out float x) ? x : -1f); } private set { GameVariables["experience"] = value; } }
         public int MaxExperience { get { return (StringToInt(GameVariables["maxExperience"].ToString(), out int x) ? x : -1); } private set { GameVariables["maxExperience"] = value; } }
+
+        public uint Gold { get { return StringToUInt(GameVariables["availableSkillPoints"].ToString(), out uint x) ? x : 0; } private set { GameVariables["gold"] = value; } }
 
         public int Power { get { return (StringToInt(GameVariables["power"].ToString(), out int x) ? x : -1); } private set { GameVariables["power"] = value; } }
         public int Nimble { get { return (StringToInt(GameVariables["nimble"].ToString(), out int x) ? x : -1); } private set { GameVariables["nimble"] = value; } }
@@ -82,6 +83,7 @@ namespace RPG_Game {
             GameVariables.Add("availableSkillPoints", 0);
             GameVariables.Add("experience", 0.0f);
             GameVariables.Add("maxExperience", (int)(Math.Pow(2, (1.0f / 8.0f) * Level) * 10));
+            GameVariables.Add("gold", 0);
             GameVariables.Add("promptSkillPoints", false);
         }
 
@@ -124,18 +126,28 @@ namespace RPG_Game {
             else if (o == Operation.Set) Level = value;
         }
 
-        public void AddStats(Stat stat, int value) {
+        public void AlterGold(Operation o, uint value)
+        {
+            if (o == Operation.Add) Gold += value;
+            else if (o == Operation.Subtract) Gold -= value;
+            else if (o == Operation.Set) Gold = value;
+        }
+
+        public void AddStats(Stat stat, int value)
+        {
             if (stat == Stat.Power) Power += value; 
             else if (stat == Stat.Nimble) Nimble += value; 
             else if (stat == Stat.Magic) Magic += value; 
             else if (stat == Stat.Cunning) Cunning += value; 
         }
 
-        public int CurrentDifficultRating() {
+        public int CurrentDifficultRating()
+        {
             return (Power + Nimble + Magic) / 12;
         }
 
-        private void AddDefaultVariables() {
+        private void AddDefaultVariables()
+        {
             GameVariables.Add("name", string.Empty);
             GameVariables.Add("class", PlayerClass.Undefined);
             GameVariables.Add("health", -1);
@@ -150,27 +162,35 @@ namespace RPG_Game {
             GameVariables.Add("cunning", -1);
             GameVariables.Add("experience", -1.0f);
             GameVariables.Add("maxExperience", -1);
+            GameVariables.Add("gold", 0);
             GameVariables.Add("promptSkillPoints", false);
         }
 
-        public static bool StringToInt(string str, out int x) {
-            if (int.TryParse(str, out x)) {
+        public static bool StringToInt(string str, out int x)
+        {
+            if (int.TryParse(str, out x))
                 return true;
-            }
             return false;
         }
 
-        public static bool StringToFloat(string str, out float x) {
-            if (float.TryParse(str, out x)) {
+        public static bool StringToUInt(string str, out uint x)
+        {
+            if (uint.TryParse(str, out x))
                 return true;
-            }
             return false;
         }
 
-        public static bool StringToBool(string str, out bool x) {
-            if (bool.TryParse(str, out x)) {
+        public static bool StringToFloat(string str, out float x)
+        {
+            if (float.TryParse(str, out x)) 
                 return true;
-            }
+            return false;
+        }
+
+        public static bool StringToBool(string str, out bool x)
+        {
+            if (bool.TryParse(str, out x)) 
+                return true;
             return false;
         }
     }

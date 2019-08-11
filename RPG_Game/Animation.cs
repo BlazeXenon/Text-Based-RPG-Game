@@ -19,7 +19,7 @@ namespace RPG_Game {
         private int internalInterval;
         private bool internalShouldSkipLine;
 
-        public Animation(AnimationType type, int interval, string text = "", bool skipLine = true) {
+        public Animation(AnimationType type = AnimationType.TextTyping, int interval = 20, string text = "", bool skipLine = true) {
             internalType = type;
             internalInterval = interval;
             internalText = text;

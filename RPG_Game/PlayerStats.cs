@@ -22,7 +22,7 @@ namespace RPG_Game {
         public float Experience { get { return (StringToFloat(GameVariables["experience"].ToString(), out float x) ? x : -1f); } private set { GameVariables["experience"] = value; } }
         public int MaxExperience { get { return (StringToInt(GameVariables["maxExperience"].ToString(), out int x) ? x : -1); } private set { GameVariables["maxExperience"] = value; } }
 
-        public uint Gold { get { return StringToUInt(GameVariables["availableSkillPoints"].ToString(), out uint x) ? x : 0; } private set { GameVariables["gold"] = value; } }
+        public uint Gold { get { return StringToUInt(GameVariables["gold"].ToString(), out uint x) ? x : 0; } private set { GameVariables["gold"] = value; } }
 
         public int Power { get { return (StringToInt(GameVariables["power"].ToString(), out int x) ? x : -1); } private set { GameVariables["power"] = value; } }
         public int Nimble { get { return (StringToInt(GameVariables["nimble"].ToString(), out int x) ? x : -1); } private set { GameVariables["nimble"] = value; } }

@@ -16,6 +16,7 @@ namespace RPG_Game
         private int increasingHealthInterval;
         private int powerMin;
         private Encounter[] encounters;
+        private Encounter currentEncounter;
 
         public override int Health
         {
@@ -113,6 +114,17 @@ namespace RPG_Game
                 encounters = value;
             }
         }
+        protected override Encounter CurrentEncounter
+        {
+            get
+            {
+                return currentEncounter;
+            }
+            set
+            {
+                currentEncounter = value;
+            }
+        }
 
         public Zombie(int difficulty)
         {
@@ -121,19 +133,6 @@ namespace RPG_Game
             increasingHealthInterval = 5;
             powerMin = 1;
             enemyDifficulty = difficulty / 2;
-
-            Encounters = new Encounter[]
-            {
-                new Encounter("\nA figure wanders aimlessly amidst the field you stumble upon,\nhe sees you and starts to attack you!", 1),
-                new Encounter("\nUpon going outside the town you find what looks like a man standing up underneath a tree, suddenly he starts to charge towards you!", 1),
-                new Encounter("\nYou find a chest of what appears to be loot. As you approach it, a figure jumps out of a nearby shadow and attempts to attack you!", 1)
-            };
-
-            //battleTexts = new string[]{ "\nA figure wanders aimlessly amidst the field you stumble upon,\nhe sees you and starts to attack you!",
-            //                            "\nUpon going outside the town you find what looks like a man standing up underneath a tree, suddenly he starts to charge towards you!",
-            //                            "\nYou find a chest of what appears to be loot. As you approach it, a figure jumps out of a nearby shadow and attempts to attack you!" };
-
-
 
             if (enemyDifficulty == 0)
             {
@@ -145,6 +144,16 @@ namespace RPG_Game
                 health = Program.InclusiveIntRNG(healthMin + (enemyDifficulty + 1), healthMin + (increasingHealthInterval * (enemyDifficulty + 1)));
                 power = Program.InclusiveIntRNG(powerMin + (enemyDifficulty + 1), powerMin + (powerMin * (enemyDifficulty + 1)));
             }
+
+            uint min = (uint)(Health + Power) * 5, 
+                 max = (uint)(Health + Power) * 8;
+
+            Encounters = new[]
+            {
+                new Encounter("A figure wanders aimlessly amidst the field you stumble upon, he sees you and starts to attack you!", generateGoldForEncounter(min, max)),
+                new Encounter("Upon going outside the town you find what looks like a man standing up underneath a tree, suddenly he starts to charge towards you!", generateGoldForEncounter(min, max)),
+                new Encounter("You find a chest of what appears to be loot. As you approach it, a figure jumps out of a nearby shadow and attempts to attack you!", generateGoldForEncounter(min, max))
+            };
         }
     }
 }

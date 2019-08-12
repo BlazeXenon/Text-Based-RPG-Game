@@ -79,7 +79,7 @@ namespace RPG_Game {
                 Console.WriteLine(@"      _\/\\\_____\//\\\__\/\\\_____________\/\\\_______\/\\\_  ");
                 Console.WriteLine(@"       _\/\\\______\//\\\_\/\\\_____________\//\\\\\\\\\\\\/__ ");
                 Console.WriteLine(@"        _\///________\///__\///_______________\////////////____" + "\n");
-                Console.WriteLine("\t\t\t\t\t/wGame./e\n\n\n");
+                Program.ConsoleColorWriteLine("\t\t\t\t\t/wGame./e\n\n\n");
             }
             Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
         }
@@ -160,7 +160,7 @@ namespace RPG_Game {
                 else
                 {
                     Program.ConsoleColorWriteLine($"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
-                    Console.WriteLine("Speaking of which, what is your /wname/e adventurer?\n");
+                    Program.ConsoleColorWriteLine("Speaking of which, what is your /wname/e adventurer?\n");
                 }
                 
                 WriteOnBottomLine("Character Name:\n", 2);

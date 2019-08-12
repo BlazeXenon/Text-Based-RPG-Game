@@ -19,14 +19,16 @@ namespace RPG_Game {
         {
             return rnd.Next(min, max + 1);
         }
-        public static uint UIntRNG(int min, int max)
+        public static uint UIntRNG(uint min, uint max)
         {
-            // Very elegant way to generate a 32 bit UInt courtesy of:
-            // https://stackoverflow.com/questions/17080112/generate-random-uint
+            // Generates a 32 bit UInt courtesy of:
+            // https://stackoverflow.com/questions/31451485/how-do-i-generate-a-random-uint-with-a-maximum
 
-            uint thirtyBits = (uint)rnd.Next(1 << 30);
-            uint twoBits = (uint)rnd.Next(1 << 2);
-            return (thirtyBits << 2) | twoBits;
+            var buffer = new byte[sizeof(uint)];
+            new Random().NextBytes(buffer);
+            uint result = BitConverter.ToUInt32(buffer, 0);
+
+            return result % (max - min) + min;
         }
 
         public static float FloatRNG() {

@@ -21,6 +21,8 @@ namespace RPG_Game
 
         protected abstract Encounter[] Encounters { get; set; }
 
+        protected abstract Encounter CurrentEncounter { get; set; }
+
         public int Attack()
         {
             int min = Power - Program.InclusiveIntRNG(1, 3),
@@ -34,13 +36,27 @@ namespace RPG_Game
             Health -= amount;
             if (Health < 0) Health = 0;
         }
-        public void WriteOutBattleText()
+
+        public void InitializeEnemy()
         {
-            Animation.RunAnimation(interval: 35, textToType: Encounters[Program.IntRNG(0, Encounters.Length)].BattleText);
+            CurrentEncounter = Encounters[Program.IntRNG(0, Encounters.Length)];
+            WriteOutBattleText();
+        }
+        private void WriteOutBattleText()
+        {
+            Animation.RunAnimation(interval: 35, textToType: CurrentEncounter.BattleText);
         }
         public uint GetEnemyGoldYield()
         {
-            return Program.UIntRNG((Health + Power) * 5, (Health + Power) * 8);
+            return CurrentEncounter.GoldYield;
+        }
+        protected uint generateGoldForEncounter(uint min, uint max)
+        {
+            var buffer = new byte[sizeof(uint)];
+            new Random().NextBytes(buffer);
+            uint result = BitConverter.ToUInt32(buffer, 0);
+
+            return result % (max - min) + min;
         }
 
     }

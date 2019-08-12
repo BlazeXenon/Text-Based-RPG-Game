@@ -19,9 +19,7 @@ namespace RPG_Game
             int rndTextIndex = Program.IntRNG(0, GoldVariations.Length);
             string rndText = GoldVariations[rndTextIndex];
 
-            rndText.Replace("{", goldAmount.ToString());
-
-            return rndText;
+            return rndText.Replace("{", goldAmount.ToString());
         }
     }
 }

@@ -4,8 +4,10 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace RPG_Game {
-    public class Game {
+namespace RPG_Game 
+{
+    public class Game 
+    {
 
         public static ForestArea forestArea;
 
@@ -14,16 +16,19 @@ namespace RPG_Game {
         private bool shouldGameRestart = false;
         private PlayerStats ps;
 
-        public Game(PlayerStats ps) {
+        public Game(PlayerStats ps) 
+        {
             this.ps = ps;
             SaveGame();
-            shouldGameRestart = BeginGame();
             forestArea = new ForestArea();
+
+            shouldGameRestart = BeginGame();
         }
 
-        private bool BeginGame() {
-            int selection = -1;
-            while (true) {
+        private bool BeginGame() 
+        {
+            while (true)
+            {
                 if (ps.Health <= 0)
                     return true;
                 Console.Clear();
@@ -39,7 +44,7 @@ namespace RPG_Game {
                 Program.ConsoleColorWriteLine($"/yLevel:/e {ps.Level + (ps.Level == 50 ? " (Max Level)" : "")}");
                 Program.ConsoleColorWriteLine($"/wExperience:/e ({ps.Experience}/{ps.MaxExperience})\n");
 
-                
+                Program.ConsoleColorWriteLine($"/yGold:/e {ps.Gold}\n");
 
                 Program.ConsoleColorWriteLine($"/RPower:/e {ps.Power}");
                 Program.ConsoleColorWriteLine($"/gNimble:/e {ps.Nimble}");
@@ -52,18 +57,30 @@ namespace RPG_Game {
                 Menu.WriteOnBottomLine("/w(1)/e Enter Battle /w(2)/e Purchase Items /w(3)/e Save Game" + ((ps.AvailableSkillPoints > 0) ? " /w(4)/e Spend Skill Points " : " ") + "/w(99)/e Exit", 3, true);
                 Menu.WriteOnBottomLine(">> ");
                 var x = Console.ReadLine();
-                if (int.TryParse(x, out selection)) {
-                    if (selection == 1) {
+                int selection;
+                if (int.TryParse(x, out selection))
+                {
+                    if (selection == 1)
+                    {
                         Battle();
-                    } else if (selection == 2) {
+                    }
+                    else if (selection == 2)
+                    {
 
-                    } else if (selection == 3) {
+                    }
+                    else if (selection == 3)
+                    {
                         SaveGame();
-                    } else if (selection == 4) {
-                        if (ps.AvailableSkillPoints > 0) {
+                    }
+                    else if (selection == 4)
+                    {
+                        if (ps.AvailableSkillPoints > 0)
+                        {
                             AssignSkillPoints();
                         }
-                    } else if (selection == 99) {
+                    }
+                    else if (selection == 99)
+                    {
                         if (DoesSaveDataMatchCurrentData())
                         {
                             Environment.Exit(0);
@@ -77,7 +94,9 @@ namespace RPG_Game {
                         }
                     }
                     selection = -1;
-                } else {
+                }
+                else
+                {
                     Console.WriteLine("\nInvalid Selection!\n");
                     Console.ReadKey();
                 }
@@ -96,7 +115,7 @@ namespace RPG_Game {
             int timesPlayerCanAttemptFlee = 1;
             bool playerEscapeStatus = false;
 
-            currentEnemy.WriteOutBattleText();
+            currentEnemy.InitializeEnemy();
 
             while (currentEnemy.Health > 0 && ps.Health > 0 && !playerEscapeStatus) 
             {
@@ -360,22 +379,24 @@ namespace RPG_Game {
             }
             
         }
-        public void SaveGame() {
+        public void SaveGame()
+        {
             string gamesave = "name = " + ps.Name + Environment.NewLine
-                            + "class = " + ps.PlayerClass.ToString() + Environment.NewLine
-                            + "health = " + ps.Health + Environment.NewLine
-                            + "maxHealth = " + ps.MaxHealth + Environment.NewLine
-                            + "mana = " + ps.Mana + Environment.NewLine
-                            + "maxMana = " + ps.MaxMana + Environment.NewLine
-                            + "power = " + ps.Power + Environment.NewLine
-                            + "nimble = " + ps.Nimble + Environment.NewLine
-                            + "magic = " + ps.Magic + Environment.NewLine
-                            + "cunning = " + ps.Cunning + Environment.NewLine
-                            + "level = " + ps.Level + Environment.NewLine
-                            + "experience = " + ps.Experience + Environment.NewLine
-                            + "maxExperience = " + ps.MaxExperience + Environment.NewLine
-                            + "availableSkillPoints = " + ps.AvailableSkillPoints + Environment.NewLine
-                            + "promptSkillPoints = " + ps.HasPreviouslyAssignedSkillPoints;
+                              + "class = " + ps.PlayerClass + Environment.NewLine
+                              + "health = " + ps.Health + Environment.NewLine
+                              + "maxHealth = " + ps.MaxHealth + Environment.NewLine
+                              + "mana = " + ps.Mana + Environment.NewLine
+                              + "maxMana = " + ps.MaxMana + Environment.NewLine
+                              + "power = " + ps.Power + Environment.NewLine
+                              + "nimble = " + ps.Nimble + Environment.NewLine
+                              + "magic = " + ps.Magic + Environment.NewLine
+                              + "cunning = " + ps.Cunning + Environment.NewLine
+                              + "level = " + ps.Level + Environment.NewLine
+                              + "experience = " + ps.Experience + Environment.NewLine
+                              + "maxExperience = " + ps.MaxExperience + Environment.NewLine
+                              + "gold = " + ps.Gold + Environment.NewLine
+                              + "availableSkillPoints = " + ps.AvailableSkillPoints + Environment.NewLine
+                              + "promptSkillPoints = " + ps.HasPreviouslyAssignedSkillPoints;
 
             File.WriteAllText(Directory.GetCurrentDirectory() + "/save.txt", gamesave);
         }
@@ -419,6 +440,7 @@ namespace RPG_Game {
             }
             else
             {
+                Console.WriteLine($"Level: {ps.Level}");
                 throw new NullReferenceException("Your level is not within 1-50! Corrupt data or Cheating.");
             }
         }

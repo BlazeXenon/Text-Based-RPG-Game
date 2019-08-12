@@ -17,6 +17,7 @@ namespace RPG_Game {
         public int MAX_LEVEL { get { return max_level; } }
         public int AvailableSkillPoints { get { return (StringToInt(GameVariables["availableSkillPoints"].ToString(), out int x) ? x : -1); } private set { GameVariables["availableSkillPoints"] = value; } }
         public bool HasPreviouslyAssignedSkillPoints { get { return (StringToBool(GameVariables["promptSkillPoints"].ToString(), out bool x) ? x : false); } set { GameVariables["promptSkillPoints"] = value; } }
+        public bool HasTalkedToShopKeeper1 { get { return StringToBool(GameVariables["promptShopKeeper1"].ToString(), out bool x) ? x : false; } set { GameVariables["promptShopKeeper1"] = value; } }
 
 
         public float Experience { get { return (StringToFloat(GameVariables["experience"].ToString(), out float x) ? x : -1f); } private set { GameVariables["experience"] = value; } }
@@ -41,18 +42,20 @@ namespace RPG_Game {
         
 
         //Internal Variable Getters/Setters
-        public Dictionary<string, object> GameVariables { get { return gameVariables; } private set { gameVariables = value; } }
+        public Dictionary<string, object> GameVariables { get => gameVariables; private set => gameVariables = value; }
         private const int max_level = 50;
 
 
         //Declare Variables
         Dictionary<string, object> gameVariables = new Dictionary<string, object>();
 
-        public PlayerStats() {
+        public PlayerStats() 
+        {
             AddDefaultVariables();
         }
 
-        public PlayerStats(PlayerClass pc, string playerName) {
+        public PlayerStats(PlayerClass pc, string playerName) 
+        {
             GameVariables.Add("name", playerName);
             GameVariables.Add("class", pc);
             GameVariables.Add("level", 1);
@@ -85,6 +88,7 @@ namespace RPG_Game {
             GameVariables.Add("maxExperience", (int)(Math.Pow(2, (1.0f / 8.0f) * Level) * 10));
             GameVariables.Add("gold", 0);
             GameVariables.Add("promptSkillPoints", false);
+            GameVariables.Add("promptShopKeeper1", false);
         }
 
         public void AlterHealth(Operation o, int value) {
@@ -164,6 +168,7 @@ namespace RPG_Game {
             GameVariables.Add("maxExperience", -1);
             GameVariables.Add("gold", 0);
             GameVariables.Add("promptSkillPoints", false);
+            GameVariables.Add("promptShopKeeper1", false);
         }
 
         public static bool StringToInt(string str, out int x)
@@ -195,20 +200,23 @@ namespace RPG_Game {
         }
     }
 
-    public enum Operation {
+    public enum Operation 
+    {
         Add,
         Subtract,
         Set
     }
 
-    public enum PlayerClass {
+    public enum PlayerClass 
+    {
         Undefined,
         Warrior,
         Mage,
         Archer
     }
 
-    public enum Stat { //power = warriors, nimble = archer, magic = mage, cunning = luck
+    public enum Stat //power = warriors, nimble = archer, magic = mage, cunning = luck
+    { 
         Power,
         Nimble,
         Magic,

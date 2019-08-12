@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -21,6 +23,7 @@ namespace RPG_Game
             this.ps = ps;
             SaveGame();
             forestArea = new ForestArea();
+            new Inventory();
 
             shouldGameRestart = BeginGame();
         }
@@ -66,7 +69,7 @@ namespace RPG_Game
                     }
                     else if (selection == 2)
                     {
-
+                        Shop();
                     }
                     else if (selection == 3)
                     {
@@ -219,7 +222,8 @@ namespace RPG_Game
                     int level_up_amount = 0;
 
                     // Calculate a multi-level scenerio
-                    while (ps.Experience >= ps.MaxExperience) {
+                    while (ps.Experience >= ps.MaxExperience) 
+                    {
                         // Subtract the max amount of experience from the current experience
                         // i.e. Level 1 - 19.6/10 => Level 1 - 9.6/10
                         ps.AlterExperience(Operation.Subtract, ps.MaxExperience);
@@ -261,7 +265,8 @@ namespace RPG_Game
             }
         }
 
-        private void AssignSkillPoints() {
+        private void AssignSkillPoints() 
+        {
             bool isSpendingSkillPoints = true;
             string[] approvedSkillsToUpgrade = { "health", "mana", "power", "nimble", "magic", "cunning" };
             string[] greetingStrings = { "Come to train your skills, have you?", "What can I do for you?", "What are you looking to improve upon today?"};
@@ -270,13 +275,13 @@ namespace RPG_Game
                 Animation.RunAnimation(AnimationType.Dot, 400);
                 Animation.RunAnimation(AnimationType.TextTyping, 50, "\n*You hear a voice off to the side*\n");
                 Animation.RunAnimation(AnimationType.Dot, 300);
-                Animation.RunAnimation(AnimationType.TextTyping, 50, "\nHello Adventurer! I am Elise, the training guide in this town.\n" + 
-                                                                     "It seems as though you have a prospect to get stronger!\n\n" +
+                Animation.RunAnimation(AnimationType.TextTyping, 50, "\n/wElise/e: Hello Adventurer! I am /wElise/e, the training guide in this town.\n" + 
+                                                                     "/wElise/e: It seems as though you have a prospect to get stronger!\n\n" +
                                                                      "\t*You are surprised but nod in agreement*\n\n" +
-                                                                     "Before we continue, tell me, what is your name adventurer?\n\n" + 
+                                                                     "/wElise/e: Before we continue, tell me, what is your name adventurer?\n\n" + 
                                                                      $"\t*You tell Elise that your name is /w{ps.Name}/e*\n\n" + 
-                                                                     "Ah, a wonderful name indeed!\nI'm sure we'll be fantastic friends for many years to come!\n" +
-                                                                     "\nNow walk over here with me and I'll show you how to get stronger.");
+                                                                     "/wElise/e: Ah, a wonderful name indeed!\nI'm sure we'll be fantastic friends for many years to come!\n" +
+                                                                     "\n/wElise/e: Now walk over here with me and I'll show you how to get stronger.");
                 ps.HasPreviouslyAssignedSkillPoints = true;
                 Console.ReadKey();
             }
@@ -396,18 +401,24 @@ namespace RPG_Game
                               + "maxExperience = " + ps.MaxExperience + Environment.NewLine
                               + "gold = " + ps.Gold + Environment.NewLine
                               + "availableSkillPoints = " + ps.AvailableSkillPoints + Environment.NewLine
-                              + "promptSkillPoints = " + ps.HasPreviouslyAssignedSkillPoints;
+                              + "promptSkillPoints = " + ps.HasPreviouslyAssignedSkillPoints + Environment.NewLine
+                              + "promptShopKeeper1 = " + ps.HasTalkedToShopKeeper1;
 
             File.WriteAllText(Directory.GetCurrentDirectory() + "/save.txt", gamesave);
         }
 
-        private bool DoesSaveDataMatchCurrentData() {
+        private bool DoesSaveDataMatchCurrentData() 
+        {
             Dictionary<string, string> currentSaveValues = Menu.ParseSaveValues();
 
-            foreach (string saveKey in currentSaveValues.Keys) {
-                foreach (string actualKey in ps.GameVariables.Keys) {
-                    if (saveKey.Equals(actualKey)) {
-                        if (currentSaveValues[saveKey] != (string)ps.GameVariables[actualKey].ToString()) {
+            foreach (string saveKey in currentSaveValues.Keys) 
+            {
+                foreach (string actualKey in ps.GameVariables.Keys) 
+                {
+                    if (saveKey.Equals(actualKey)) 
+                    {
+                        if (currentSaveValues[saveKey] != (string)ps.GameVariables[actualKey].ToString()) 
+                        {
                             return false;
                         }
                     }
@@ -443,6 +454,193 @@ namespace RPG_Game
                 Console.WriteLine($"Level: {ps.Level}");
                 throw new NullReferenceException("Your level is not within 1-50! Corrupt data or Cheating.");
             }
+        }
+
+        private void Shop()
+        {
+            Console.Clear();
+
+            if (!ps.HasTalkedToShopKeeper1)
+            {
+                // Intro Sequence
+                Animation.Queue(new Animation(text: "*You head towards the town shop and you are greeted by the shop keeper*\n", interval: 70));
+                Animation.Queue(new Animation(AnimationType.Dot, interval: 100));
+                Animation.Queue(new Animation(text: "\n/w???/e: Hello there traveler! What brings you to this fine establishment?\n", interval: 70));
+                Animation.Queue(new Animation(text: "\t*You tell the shop keeper that you would like to see what he offers*\n", interval: 70));
+                Animation.Queue(new Animation(text: "/w???/e: Ah yes, you are free to browse as you please traveler! Speaking of which...\n", interval: 70));
+                Animation.Queue(new Animation(text: "\t*He reaches out to shake your hand*\n", interval: 70));
+                Animation.Queue(new Animation(text: "/wDwari/e: I haven't properly introduced myself, I'm /wDwari/e, the town's shopkeeper!\n", interval: 70));
+                Animation.Queue(new Animation(text: $"\t*You tell the shop keeper your name is /w{ps.Name}/e*\n", interval: 70));
+                Animation.Queue(new Animation(text: $"/wDwari/e: Ah /w{ps.Name}/e! What a fine name indeed, I can't wait to do business with you!\n", interval: 70));
+
+                Animation.PlayQueue();
+
+                ps.HasTalkedToShopKeeper1 = true;
+                Console.ReadKey();
+            }
+
+            while (true)
+            {
+                Console.Clear();
+                Program.ConsoleColorWriteLine("/wDwari/e: Would you like to /cbuy/e or /rsell/e items today?");
+                Menu.WriteOnBottomLine(">> ");
+                string shopOption = Console.ReadLine();
+
+                if (shopOption.ToLowerInvariant().Trim().Equals("buy"))
+                {
+                    Buy();
+                    break;
+                }
+                else if (shopOption.ToLowerInvariant().Trim().Equals("sell"))
+                {
+                    Sell();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("\nInvalid Input. Please specify \"buy\" or \"sell\".\n");
+                    Console.ReadKey();
+                }
+            }
+        }
+        private void Buy()
+        {
+            Console.Clear();
+            string[] greetingStrings = { "Come to see my wares?", "What bring you here at this hour?", "What can I do for you friend?", "Are you in need of a new weapon perhaps?", "Come to buy some potions? They are fresh in stock!", "You've come to do business I see!" };
+            string greetingString = greetingStrings[Program.IntRNG(0, greetingStrings.Length)];
+
+            // Make sure there isn't more the 26 items.
+            List<Item> itemsInStock = new List<Item>
+            {
+                new SmallHealthPotion(),
+                new SmallManaPotion()
+            };
+
+            bool isBuyingItems = true;
+            while (isBuyingItems)
+            {
+                Console.Clear();
+                Program.ConsoleColorWriteLine($"/wDwari/e: Ahoy there /w{ps.Name}/e! {greetingString}\n");
+                Program.ConsoleColorWriteLine(" * To buy items, type /wbuy/e then type the /cnumber/e next to the item.");
+                Program.ConsoleColorWriteLine(" * To add a quantity, add the /ramount/e you want to purchase/sell after the first number.\n");
+                Program.ConsoleColorWriteLine("(e.g. /wbuy/e /c5/e)");
+                Program.ConsoleColorWriteLine("(e.g. /wbuy/e /c2/e /r5/e)\n");
+                
+                Program.ConsoleColorWriteLine("To return back to town type /w\"back\"/e.\n");
+
+                Console.WriteLine("-----------------------------");
+                Console.WriteLine("Here is my current inventory:");
+                Console.WriteLine("-----------------------------");
+
+                WriteCurrentShopInventory(itemsInStock);
+
+                Console.WriteLine("---------------");
+                Console.WriteLine("Your Inventory:");
+                Console.WriteLine("---------------");
+
+                WritePlayerInventory();
+
+                Program.ConsoleColorWriteLine($"Your Current /yGold/e: /w{ps.Gold}/e\n");
+
+                Console.Write(">> ");
+                string userInput = Console.ReadLine();
+                userInput = userInput.ToLowerInvariant().Trim();
+
+                if (userInput == "back")
+                    break;
+
+                if (ValidShopInput(userInput))
+                {
+                    int itemNum = -1;
+                    int itemAmount = -1;
+                    bool successfulParse = ParseUserInput(userInput, out itemNum, out itemAmount);
+
+                    if (successfulParse)
+                    {
+                        if (itemNum > 0 && itemNum <= itemsInStock.Count) // If the user's input for item choice is one of the options available.
+                        {
+                            itemNum -= 1; // Reduce the user input by one to convert to index input.
+                            Item newItem = (Item)Activator.CreateInstance(itemsInStock[itemNum].GetType());
+
+                            if (ps.Gold >= newItem.BuyPrice * (itemAmount > 1 ? itemAmount : 1))
+                            {
+                                ps.AlterGold(Operation.Subtract, (uint)newItem.BuyPrice);
+                                Inventory.instance.AddItem(newItem);
+
+                                Program.ConsoleColorWriteLine($"/wDwari/e: There you are /w{ps.Name}/e! Have fun with your new /w{newItem.Name}{(itemAmount > 1 ? "s" : "")}!/e");
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                Program.ConsoleColorWriteLine($"\n/wDwari/e: Er, sorry /w{ps.Name}/e... Unfortunately you don't have enough /ygold/e to buy {(itemAmount > 1 ? "those" : "that")} item{(itemAmount > 1 ? "s" : "")}.\n");
+                                Console.ReadKey();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("An error occurred with the input you provided.");
+                        Console.ReadKey();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("\nError: That is not valid formatting. Please refer to the above text for the correct format.");
+                    Console.ReadKey();
+                }
+            }
+        }
+        private void Sell()
+        {
+            Console.Clear();
+            Console.WriteLine("WIP: Not Implemented Yet.");
+            
+            /*
+            Program.ConsoleColorWriteLine("To sell items, type /wsell/e then type the /rnumber/e next to the item.");
+            Program.ConsoleColorWriteLine("(e.g. /wsell/e /r1/e /c2/e)");
+            Program.ConsoleColorWriteLine("Your Inventory: ");
+            */
+            Console.ReadKey();
+        }
+
+        private void WriteCurrentShopInventory(List<Item> itemsInStock)
+        {
+            int itemNum = 1;
+            foreach (Item item in itemsInStock)
+            {
+                Program.ConsoleColorWriteLine($"\n\t/w({itemNum})/e {item.Name}\n\t\tBuy: /w{item.BuyPrice}/e /ygold/e each.\n");
+                itemNum += 1;
+            }
+        }
+        private void WritePlayerInventory()
+        {
+            List<Item> playerInventory = Inventory.instance.GetInventory();
+            if (playerInventory.Count < 1)
+                Console.WriteLine("\n\t(Your pack seems to be empty...)");
+            else
+                foreach (Item currItem in playerInventory)
+                    Console.WriteLine($"\n\t{currItem.Name} (x {currItem.Quantity})");
+
+            Console.WriteLine();
+        }
+        private bool ValidShopInput(string str)
+        {
+            return new Regex(@"(buy|sell) \d+\s*\d*", RegexOptions.IgnoreCase).IsMatch(str);
+        }
+        private bool ParseUserInput(string userInput, out int item, out int amount)
+        {
+            string[] inputs = userInput.Split(' ');
+
+            amount = -1;
+
+            if (!int.TryParse(inputs[1], out item))
+                return false;
+
+            if (inputs.Length > 2)
+                if (!int.TryParse(inputs[2], out amount))
+                    return false;
+
+            return true;
         }
     }
 }

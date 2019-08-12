@@ -52,7 +52,8 @@ namespace RPG_Game {
             
         }
 
-        private void LoadScreen(bool useAnimation) {
+        private void LoadScreen(bool useAnimation) 
+        {
             Console.Clear();
             if (useAnimation) {
                 Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t/wWelcome to an/e\n"));
@@ -84,7 +85,8 @@ namespace RPG_Game {
             Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
         }
 
-        private bool NewGame() {
+        private bool NewGame() 
+        {
             string[] classDescriptions = { "/rWarrior/e: What some call a fearsome brute, this class thrives in health and strength.\n",
                                            "/cMage/e: A powerful and deadly force, these people specialize in the art of magic.\n",
                                            "/gArcher/e: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"};
@@ -185,7 +187,8 @@ namespace RPG_Game {
             return true;
         }
 
-        public static void LoadGame() {
+        public static void LoadGame() 
+        {
 
             PlayerStats gameStats = new PlayerStats();
 
@@ -225,7 +228,8 @@ namespace RPG_Game {
             return saveValues;
         }
 
-        public static void WriteOnBottomLine(string text, int offset = 1, bool restoreCursorPosition = false) {
+        public static void WriteOnBottomLine(string text, int offset = 1, bool restoreCursorPosition = false) 
+        {
             int x = Console.CursorLeft;
             int y = Console.CursorTop;
             Console.CursorTop = Console.WindowTop + Console.WindowHeight - offset;

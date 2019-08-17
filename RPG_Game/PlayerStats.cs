@@ -153,7 +153,7 @@ namespace RPG_Game
 
         public int CurrentDifficultRating()
         {
-            return (Power + Nimble + Magic) / 12;
+            return (Power + Nimble + Magic) / 8;
         }
 
         private void AddDefaultVariables()

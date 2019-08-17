@@ -86,7 +86,7 @@ namespace RPG_Game
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"      _\/\\\_____\//\\\__\/\\\_____________\/\\\_______\/\\\_  "));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"       _\/\\\______\//\\\_\/\\\_____________\//\\\\\\\\\\\\/__ "));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"        _\///________\///__\///_______________\////////////____\n"));
-                Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t\t\t\t\tGame.\n\n\n"));
+                Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t\t\t\t\t/wGame./e\n\n\n"));
                 Animation.PlayQueue();
                 playMenuAnimation = false;
             } else {
@@ -242,6 +242,18 @@ namespace RPG_Game
 
                     if (int.TryParse(userChoice, out int parsedChoice))
                     {
+                        // Store table id for both entries (parallel data entries for inventory and saves table)
+                        GameSaveId = parsedChoice;
+
+                        // Load PlayerStats and Inventory into Memory from database.
+                        byte[] serializedInventoryData = DatabaseHelper.instance.RetrieveData(Tables.Inventory, parsedChoice);
+                        byte[] serializedStatData = DatabaseHelper.instance.RetrieveData(Tables.Saves, parsedChoice);
+                        
+                        /* 
+                         *
+                         * SQL SERVER WAY
+                         *
+                         *
                         parsedChoice -= 1; // Convert from user number to array index value.
                         
                         // Store table id for both entries (parallel data entries for inventory and saves table)
@@ -249,7 +261,7 @@ namespace RPG_Game
 
                         // Load PlayerStats and Inventory into Memory from database.
                         byte[] serializedInventoryData = DatabaseHelper.instance.RetrieveData(Tables.Inventory, parsedChoice);
-                        byte[] serializedStatData = DatabaseHelper.instance.RetrieveData(Tables.Saves, parsedChoice);
+                        byte[] serializedStatData = DatabaseHelper.instance.RetrieveData(Tables.Saves, parsedChoice);*/
 
                         Inventory.instance = Program.Deserialize(serializedInventoryData) as Inventory;
                         stats = Program.Deserialize(serializedStatData) as PlayerStats;

@@ -166,6 +166,10 @@ namespace RPG_Game
                             Console.WriteLine("Invalid Number.");
                         }
                     }
+                    else
+                    {
+                        
+                    }
                     ShouldEnemyAttackPlayer = false;
                 }
                 else if (action == "3") 
@@ -646,7 +650,7 @@ namespace RPG_Game
                                 }
                                 else
                                 {
-                                    Program.ConsoleColorWriteLine($"\n/wDwari/e: Er, sorry /w{ps.Name}/e... Unfortunately you don't have enough /ygold/e to buy {(itemAmount > 1 ? "those" : "that")} item{(itemAmount > 1 ? "s" : "")}. You are {ps.Gold - newItem.BuyPrice * itemAmount} short.\n");
+                                    Program.ConsoleColorWriteLine($"\n/wDwari/e: Er, sorry /w{ps.Name}/e... Unfortunately you don't have enough /ygold/e to buy {(itemAmount > 1 ? "those" : "that")} item{(itemAmount > 1 ? "s" : "")}. You are {Math.Abs(ps.Gold - newItem.BuyPrice * itemAmount)} short.\n");
                                     Console.ReadKey();
                                 }
                             }
@@ -727,7 +731,8 @@ namespace RPG_Game
 
             if (playerInventory.Count < 1)
             {
-                Animation.RunAnimation(textToType: "\n\t(Your pack seems to be empty...)", interval: 15);
+                Animation.Queue(new Animation(text: "\n\t(Your pack seems to be empty...)", interval: 15));
+                Animation.PlayQueue();
                 Console.ReadKey();
             }
             else

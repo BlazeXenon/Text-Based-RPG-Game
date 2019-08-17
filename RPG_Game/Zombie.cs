@@ -130,20 +130,23 @@ namespace RPG_Game
         {
             enemyType = EnemyType.Zombie;
             healthMin = 12;
-            increasingHealthInterval = 5;
+            increasingHealthInterval = 6;
             powerMin = 1;
             enemyDifficulty = difficulty / 2;
 
-            if (enemyDifficulty == 0)
+            health = Program.InclusiveIntRNG(healthMin * (healthMin / 4) + (enemyDifficulty + 1), healthMin * (healthMin / 4) + (increasingHealthInterval * (enemyDifficulty + 1)));
+            power = Program.InclusiveIntRNG(powerMin + (enemyDifficulty + 1), powerMin + (powerMin * (enemyDifficulty + 1)));
+
+            /*if (enemyDifficulty == 0)
             {
                 health = Program.InclusiveIntRNG(healthMin, healthMin + increasingHealthInterval);
-                power = Program.InclusiveIntRNG(powerMin, powerMin + 4);
+                power = Program.InclusiveIntRNG(powerMin, powerMin + 2);
             }
             else
             {
                 health = Program.InclusiveIntRNG(healthMin + (enemyDifficulty + 1), healthMin + (increasingHealthInterval * (enemyDifficulty + 1)));
                 power = Program.InclusiveIntRNG(powerMin + (enemyDifficulty + 1), powerMin + (powerMin * (enemyDifficulty + 1)));
-            }
+            }*/
 
             uint min = (uint)(Health + Power) * 5, 
                  max = (uint)(Health + Power) * 8;

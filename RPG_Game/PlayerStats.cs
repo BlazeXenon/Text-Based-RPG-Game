@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
-namespace RPG_Game {
+namespace RPG_Game 
+{
+    [Serializable]
     public class PlayerStats
     {
         //Game Variable Getters/Setters
@@ -30,17 +36,17 @@ namespace RPG_Game {
         public int Magic { get { return (StringToInt(GameVariables["magic"].ToString(), out int x) ? x : -1); } private set { GameVariables["magic"] = value; } }
         public int Cunning { get { return (StringToInt(GameVariables["cunning"].ToString(), out int x) ? x : -1); } private set { GameVariables["cunning"] = value; } }
 
-        public PlayerClass PlayerClass {
-            get {
-                if (Enum.TryParse(GameVariables["class"].ToString(), out PlayerClass pClass)) {
+        public PlayerClass PlayerClass 
+        {
+            get 
+            {
+                if (Enum.TryParse(GameVariables["class"].ToString(), out PlayerClass pClass)) 
                     return pClass;
-                }
                 return PlayerClass.Undefined;
             }
             private set { GameVariables["class"] = value; }
         }
         
-
         //Internal Variable Getters/Setters
         public Dictionary<string, object> GameVariables { get => gameVariables; private set => gameVariables = value; }
         private const int max_level = 50;
@@ -49,7 +55,7 @@ namespace RPG_Game {
         //Declare Variables
         Dictionary<string, object> gameVariables = new Dictionary<string, object>();
 
-        public PlayerStats() 
+        public PlayerStats()
         {
             AddDefaultVariables();
         }
@@ -198,6 +204,14 @@ namespace RPG_Game {
                 return true;
             return false;
         }
+
+        public override bool Equals(object obj)
+        {
+            PlayerStats otherStats = obj as PlayerStats;
+            return GameVariables.SequenceEqual(otherStats.GameVariables);
+        }
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 
     public enum Operation 

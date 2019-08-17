@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Area.cs" />
     <Compile Include="BaseEnemy.cs" />
+    <Compile Include="DatabaseHelper.cs" />
     <Compile Include="Encounter.cs" />
     <Compile Include="Enemy.cs" />
     <Compile Include="ForestArea.cs" />
@@ -67,6 +68,13 @@
   <ItemGroup>
     <Content Include="ColoringText.txt" />
     <Content Include="FormulasForRNG.txt" />
+    <Content Include="GameData.mdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData_log.ldf">
+      <DependentUpon>GameData.mdf</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

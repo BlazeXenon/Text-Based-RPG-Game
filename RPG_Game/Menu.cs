@@ -1,55 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
-namespace RPG_Game {
-    public class Menu {
+namespace RPG_Game 
+{
+    public class Menu
+    {
+        public static int GameSaveId = -1;
 
         public int choice = -1;
         private bool playMenuAnimation = true;
 
         private static PlayerStats stats;
+        private bool hasGameSave = false;
 
         public Menu() { }
 
+        public void Start() 
+        {
+            // Cache whether or not the player has a saved game.
+            string[] timestamps = DatabaseHelper.instance.GetLoadScreenData();
+            if (timestamps.Length > 0) hasGameSave = true;
 
-        public void Start() {
             bool continuePlay = true;
-            while (continuePlay) {
-                while (choice <= 0) {
+            while (continuePlay) 
+            {
+                while (choice <= 0) 
+                {
                     Console.Title = "RPG Game V" + Program.VersionNumber;
                     LoadScreen(playMenuAnimation);
                     Console.Write(">> ");
                     var input = Console.ReadLine();
 
-                    if (int.TryParse(input, out choice)) {
-                        if (choice == 1) {
+                    if (int.TryParse(input, out choice)) 
+                    {
+                        if (choice == 1) 
+                        {
                             var success = NewGame();
                             if (!success)
                                 choice = -1;
-                        } else if (choice == 2) {
-                            LoadGame();
-                        } else if (choice == 99) {
-                            System.Diagnostics.Process.Start(Application.ExecutablePath);
+                        } 
+                        else if (choice == 2) 
+                        {
+                            bool successfulLoad = LoadGame();
+                            if (!successfulLoad)
+                                choice = -1;
+                        } 
+                        else if (choice == 99) 
+                        {
                             Environment.Exit(0);
-                        } else {
+                        } 
+                        else 
+                        {
                             Animation.RunAnimation(textToType: "\n\nInvalid Input.\n");
                             Console.ReadKey();
                             choice = -1;
                         }
-                    } else if (!input.Trim().Equals("")) {
+                    } 
+                    else if (!input.Trim().Equals("")) 
+                    {
                         Animation.RunAnimation(textToType: "\n\nInvalid Input.\n");
                         Console.ReadKey();
                         choice = -1;
                     }
                 }
                 Game game = new Game(stats);
-                if (!game.ShouldGameRestart) {
+                if (!game.ShouldGameRestart)
                     continuePlay = false;
-                }
             }
-            
         }
 
         private void LoadScreen(bool useAnimation) 
@@ -82,7 +102,12 @@ namespace RPG_Game {
                 Console.WriteLine(@"        _\///________\///__\///_______________\////////////____" + "\n");
                 Program.ConsoleColorWriteLine("\t\t\t\t\t/wGame./e\n\n\n");
             }
-            Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
+
+            // New
+            Program.ConsoleColorWriteLine($"/w(1)/e New Game {(hasGameSave ? "/w(2)/e Load Game " : "")}/w(99)/e Exit");
+
+            // Old
+            //Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
         }
 
         private bool NewGame() 
@@ -182,14 +207,64 @@ namespace RPG_Game {
                     break;
                 }
             }
+
             
+            new Inventory();
             stats = new PlayerStats(pc, playerName);
+
+            DateTime currentTime = DateTime.Now;
+            DatabaseHelper.instance.StoreGameData(Tables.Saves, currentTime, Program.Serialize(stats));
+            GameSaveId = DatabaseHelper.instance.StoreGameData(Tables.Inventory, currentTime, Program.Serialize(Inventory.instance));
+
             return true;
         }
 
-        public static void LoadGame() 
+        public static bool LoadGame()
         {
+            string[] saves = DatabaseHelper.instance.GetLoadScreenData();
 
+            while (true)
+            {
+                Console.Clear();
+                Program.ConsoleColorWriteLine("Please choose which save you would like to load (or \"/wback/e\"):\n");
+
+                for (int i = 0; i < saves.Length; i++)
+                    Program.ConsoleColorWriteLine($"\t({(i + 1)}) {saves[i]}");
+
+                Console.Write("\n>> ");
+                string userChoice = Console.ReadLine();
+                Console.WriteLine();
+
+                if (userChoice != null)
+                {
+                    if (userChoice.ToLowerInvariant().Trim() == "back")
+                        return false;
+
+                    if (int.TryParse(userChoice, out int parsedChoice))
+                    {
+                        parsedChoice -= 1; // Convert from user number to array index value.
+                        
+                        // Store table id for both entries (parallel data entries for inventory and saves table)
+                        GameSaveId = parsedChoice;
+
+                        // Load PlayerStats and Inventory into Memory from database.
+                        byte[] serializedInventoryData = DatabaseHelper.instance.RetrieveData(Tables.Inventory, parsedChoice);
+                        byte[] serializedStatData = DatabaseHelper.instance.RetrieveData(Tables.Saves, parsedChoice);
+
+                        Inventory.instance = Program.Deserialize(serializedInventoryData) as Inventory;
+                        stats = Program.Deserialize(serializedStatData) as PlayerStats;
+
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Input: That is not a number.");
+                    }
+                }
+
+            }
+
+            /* Old Method
             PlayerStats gameStats = new PlayerStats();
 
             Dictionary<string, string> saveValues = ParseSaveValues();  //Populate the lists with our save data
@@ -205,7 +280,7 @@ namespace RPG_Game {
                     }
                 }    
             }
-            stats = gameStats;
+            stats = gameStats;*/
         }
 
         /// <summary>
@@ -213,7 +288,8 @@ namespace RPG_Game {
         /// </summary>
         /// <param name="v">Values who's index's directly correspond to the attribute list.</param>
         /// <returns>Attribute Names</returns>
-        public static Dictionary<string, string> ParseSaveValues() {
+        public static Dictionary<string, string> ParseSaveValues() // DEPRECATED
+        {
             Dictionary<string, string> saveValues = new Dictionary<string, string>();
 
             using (StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "/save.txt")) {

@@ -153,7 +153,22 @@ namespace RPG_Game
 
         public int CurrentDifficultRating()
         {
-            return (Power + Nimble + Magic) / 8;
+            if (PlayerClass == PlayerClass.Warrior)
+            {
+                return Power / 8;
+            }
+            else if (PlayerClass == PlayerClass.Archer)
+            {
+                return Nimble / 8;
+            }
+            else if (PlayerClass == PlayerClass.Mage)
+            {
+                return Magic / 8;
+            }
+            else
+            {
+                return (Power + Nimble + Magic) / 8;
+            }
         }
 
         private void AddDefaultVariables()

@@ -6,7 +6,7 @@ namespace RPG_Game {
     class Program
     {
         private static Random rnd = new Random();
-        public static float VersionNumber = 1.3f;
+        public static float VersionNumber = 1.32f;
 
         static void Main(string[] args)
         {

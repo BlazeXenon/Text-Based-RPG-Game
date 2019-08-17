@@ -143,7 +143,8 @@ namespace RPG_Game
                     List<Item> usableItems = WriteUseItems();
                     if (usableItems.Count >= 1)
                     {
-                        Animation.RunAnimation(textToType: "(Type the number of the consumable you would like to use, or \"/wback/e\")\n>> ", skipLine: false);
+                        Animation.Queue(new Animation(text: "\n(Type the number of the consumable you would like to use, or \"/wback/e\")\n>> ", skipLine: false));
+                        Animation.PlayQueue();
                         string userInput = Console.ReadLine();
                         if (userInput.ToLowerInvariant().Trim() == "back")
                             continue;
@@ -165,10 +166,6 @@ namespace RPG_Game
                         {
                             Console.WriteLine("Invalid Number.");
                         }
-                    }
-                    else
-                    {
-                        
                     }
                     ShouldEnemyAttackPlayer = false;
                 }
@@ -650,7 +647,7 @@ namespace RPG_Game
                                 }
                                 else
                                 {
-                                    Program.ConsoleColorWriteLine($"\n/wDwari/e: Er, sorry /w{ps.Name}/e... Unfortunately you don't have enough /ygold/e to buy {(itemAmount > 1 ? "those" : "that")} item{(itemAmount > 1 ? "s" : "")}. You are {Math.Abs(ps.Gold - newItem.BuyPrice * itemAmount)} short.\n");
+                                    Program.ConsoleColorWriteLine($"\n/wDwari/e: Er, sorry /w{ps.Name}/e... Unfortunately you don't have enough /ygold/e to buy {(itemAmount > 1 ? "those" : "that")} item{(itemAmount > 1 ? "s" : "")}. You are /w{Math.Abs(ps.Gold - newItem.BuyPrice * itemAmount)}/e /ygold/e short.\n");
                                     Console.ReadKey();
                                 }
                             }
@@ -757,7 +754,6 @@ namespace RPG_Game
                         Animation.Queue(new Animation(text: $"\n\t/w(/c{counter}/w)/e {currItem.Name} (x /r{currItem.Quantity}/e)\n\t\t* {currItem.Description}", interval: 15));
                         counter++;
                     }
-                    Animation.PlayQueue();
                 }
             }
 

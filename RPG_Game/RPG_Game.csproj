@@ -95,6 +95,13 @@
   <ItemGroup>
     <Content Include="ColoringText.txt" />
     <Content Include="FormulasForRNG.txt" />
+    <Content Include="GameData.mdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData_log.ldf">
+      <DependentUpon>GameData.mdf</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

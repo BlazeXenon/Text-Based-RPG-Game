@@ -319,7 +319,7 @@ namespace RPG_Game
                     } 
                     else 
                     {
-                        Menu.LoadGame();
+                        Menu.LoadGame(true);
                     }
                 }
             }

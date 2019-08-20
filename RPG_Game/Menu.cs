@@ -41,24 +41,24 @@ namespace RPG_Game
                             var success = NewGame();
                             if (!success)
                                 choice = -1;
-                        } 
-                        else if (choice == 2) 
+                        }
+                        else if (choice == 2 && hasGameSave)
                         {
                             bool successfulLoad = LoadGame();
                             if (!successfulLoad)
                                 choice = -1;
-                        } 
+                        }
                         else if (choice == 99) 
                         {
                             Environment.Exit(0);
-                        } 
+                        }
                         else 
                         {
                             Animation.RunAnimation(textToType: "\n\nInvalid Input.\n");
                             Console.ReadKey();
                             choice = -1;
                         }
-                    } 
+                    }
                     else if (!input.Trim().Equals("")) 
                     {
                         Animation.RunAnimation(textToType: "\n\nInvalid Input.\n");
@@ -219,14 +219,14 @@ namespace RPG_Game
             return true;
         }
 
-        public static bool LoadGame()
+        public static bool LoadGame(bool reload = false)
         {
             string[] saves = DatabaseHelper.instance.GetLoadScreenData();
 
             while (true)
             {
                 Console.Clear();
-                Program.ConsoleColorWriteLine("Please choose which save you would like to load (or \"/wback/e\"):\n");
+                Program.ConsoleColorWriteLine($"Please choose which save you would like to load{(!reload ? " (or \"/wback/e\")" : "")}:\n");
 
                 for (int i = 0; i < saves.Length; i++)
                     Program.ConsoleColorWriteLine($"\t({(i + 1)}) {saves[i]}");
@@ -237,18 +237,25 @@ namespace RPG_Game
 
                 if (userChoice != null)
                 {
-                    if (userChoice.ToLowerInvariant().Trim() == "back")
+                    if (userChoice.ToLowerInvariant().Trim() == "back" && reload == false)
                         return false;
 
                     if (int.TryParse(userChoice, out int parsedChoice))
                     {
                         // Store table id for both entries (parallel data entries for inventory and saves table)
-                        GameSaveId = parsedChoice;
 
                         // Load PlayerStats and Inventory into Memory from database.
                         byte[] serializedInventoryData = DatabaseHelper.instance.RetrieveData(Tables.Inventory, parsedChoice);
                         byte[] serializedStatData = DatabaseHelper.instance.RetrieveData(Tables.Saves, parsedChoice);
-                        
+
+                        if (serializedInventoryData == null || serializedStatData == null)
+                        {
+                            Console.WriteLine("Invalid Input: That save does not exist!");
+                            Console.ReadKey();
+                            continue;
+                        }
+
+                        GameSaveId = parsedChoice;
                         /* 
                          *
                          * SQL SERVER WAY
@@ -271,6 +278,7 @@ namespace RPG_Game
                     else
                     {
                         Console.WriteLine("Invalid Input: That is not a number.");
+                        Console.ReadKey();
                     }
                 }
 

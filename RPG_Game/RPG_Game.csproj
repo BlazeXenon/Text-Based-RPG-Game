@@ -96,11 +96,11 @@
     <Content Include="ColoringText.txt" />
     <Content Include="FormulasForRNG.txt" />
     <Content Include="GameData.mdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData_log.ldf">
       <DependentUpon>GameData.mdf</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

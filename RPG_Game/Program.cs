@@ -10,7 +10,7 @@ namespace RPG_Game {
 
         static void Main(string[] args)
         {
-            Console.SetWindowSize(Console.WindowWidth + 5, Console.WindowHeight + 5);
+            //Console.SetWindowSize(Console.WindowWidth + 5, Console.WindowHeight + 5);
             Menu menu = new Menu();
             DatabaseHelper dbHelper = new DatabaseHelper("GameData");
 

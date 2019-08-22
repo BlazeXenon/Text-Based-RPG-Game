@@ -13,4 +13,4 @@ The player is then thrown into the world and can start his/her own adventure fig
 #### Screenshots:
 
 ![alt text](https://github.com/BlazeXenon/Text-Based-RPG-Game/blob/master/intro.gif "Introduction Animation")
-![alt text](https://github.com/BlazeXenon/Text-Based-RPG-Game/blob/master/classselection.png "Class Selection")
+![alt text](https://github.com/BlazeXenon/Text-Based-RPG-Game/blob/master/classselection.gif "Class Selection")

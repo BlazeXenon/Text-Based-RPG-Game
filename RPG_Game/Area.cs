@@ -25,6 +25,8 @@ namespace RPG_Game
             {
                 case EnemyType.Zombie:
                     return new Zombie(difficulty);
+                case EnemyType.Witch:
+                    return new Witch(difficulty);
                 default:
                     throw new NullReferenceException($"Error: Enemy Type \"{type}\" is not defined!");
             }

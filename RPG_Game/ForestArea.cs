@@ -24,7 +24,7 @@ namespace RPG_Game
 
         public ForestArea()
         {
-            EnemyPool = new[]{ EnemyType.Zombie };
+            EnemyPool = new[]{ EnemyType.Zombie, EnemyType.Witch };
         }
     }
 }

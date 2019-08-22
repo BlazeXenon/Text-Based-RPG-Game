@@ -62,6 +62,7 @@ namespace RPG_Game
     }
     public enum EnemyType
     {
-        Zombie
+        Zombie,
+        Witch
     }
 }

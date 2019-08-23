@@ -75,7 +75,8 @@ namespace RPG_Game
         private void LoadScreen(bool useAnimation) 
         {
             Console.Clear();
-            if (useAnimation) {
+            if (useAnimation) 
+            {
                 Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t/wWelcome to an/e\n"));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @"____/\\\\\\\\\______/\\\\\\\\\\\\\_______/\\\\\\\\\\\\_        "));
                 Animation.Queue(new Animation(AnimationType.TextTyping, 2, @" __/\\\///////\\\___\/\\\/////////\\\___/\\\//////////__       "));
@@ -89,7 +90,9 @@ namespace RPG_Game
                 Animation.Queue(new Animation(AnimationType.TextTyping, 80, "\t\t\t\t\t/wGame./e\n\n\n"));
                 Animation.PlayQueue();
                 playMenuAnimation = false;
-            } else {
+            } 
+            else 
+            {
                 Program.ConsoleColorWriteLine("\t/wWelcome to an/e\n");
                 Console.WriteLine(@"____/\\\\\\\\\______/\\\\\\\\\\\\\_______/\\\\\\\\\\\\_        ");
                 Console.WriteLine(@" __/\\\///////\\\___\/\\\/////////\\\___/\\\//////////__       ");

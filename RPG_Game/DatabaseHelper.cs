@@ -37,6 +37,67 @@ namespace RPG_Game
             newCon = new SQLiteConnection(ConfigurationManager.ConnectionStrings["GameDataSQLite"].ConnectionString);
         }
 
+        public bool StoreMultipleGameData(Tables[] tables, DateTime[] times, List<byte[]> dataEntries, out int lastId)
+        {
+            // Ensures that we have the same length for tables, times, and dataEntries
+            if (tables.Length != times.Length || tables.Length != dataEntries.Count ||
+                times.Length != dataEntries.Count)
+            {
+                lastId = -1;
+                return false;
+            }
+
+            bool transactionComplete = true;
+            lastId = -1;
+
+            newCon.Open();
+            using (var trans = newCon.BeginTransaction())
+            {
+                try
+                {
+                    for (int i = 0; i < tables.Length; i++)
+                    {
+                        // Retrieve variables for this entry
+                        Tables table = tables[i];
+                        DateTime time = times[i];
+                        byte[] data = dataEntries[i];
+
+                        if (tableDictionary.TryGetValue(table, out string tableStr))
+                        {
+                            string rawSql = $"INSERT INTO {tableStr} (TimeStamp, Data) VALUES (@TIMESTAMP, @DATA);";
+                            string getLastIdSql = "SELECT last_insert_rowid();";
+                        
+                            DynamicParameters dp = new DynamicParameters();
+                            dp.Add("@TIMESTAMP", time.ToString(), DbType.AnsiString);
+                            dp.Add("@DATA", data, DbType.Binary);
+
+                            newCon.Execute(new CommandDefinition(rawSql, dp));
+                            long id = (long)newCon.ExecuteScalar(getLastIdSql);
+                            lastId = (int)id;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Retrieval failed for Table \"{table}\".");
+                            transactionComplete = false;
+                            break;
+                        }
+                    }
+
+                    if (transactionComplete)
+                        trans.Commit();
+                    else
+                        trans.Rollback();
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                    transactionComplete = false;
+                }
+                
+            }
+            newCon.Close();
+            return transactionComplete;
+        }
 
         public int StoreGameData(Tables table, DateTime time, byte[] data)
         {
@@ -82,6 +143,62 @@ namespace RPG_Game
             {
                 throw new ArgumentException($"Retrieval failed for Table \"{table}\".");
             }
+        }
+
+        public bool UpdateMultipleGameData(Tables[] tables, int[] ids, DateTime[] times, List<byte[]> dataEntries)
+        {
+            // Ensures that we have the same length for tables, times, and dataEntries
+            if (tables.Length != times.Length || tables.Length != dataEntries.Count ||
+                times.Length != dataEntries.Count)
+                return false;
+
+            bool transactionComplete = true;
+
+            newCon.Open();
+            using (var trans = newCon.BeginTransaction())
+            {
+                try
+                {
+                    for (int i = 0; i < tables.Length; i++)
+                    {
+                        Tables table = tables[i];
+                        int id = ids[i];
+                        DateTime time = times[i];
+                        byte[] data = dataEntries[i];
+
+                        if (tableDictionary.TryGetValue(table, out string tableStr))
+                        {
+                            string rawSql = $"UPDATE {tableStr} SET TimeStamp = @TIME, Data = @DATA WHERE Id = @ID";
+
+                            DynamicParameters dp = new DynamicParameters();
+                            dp.Add("@ID", id, DbType.Int32);
+                            dp.Add("@TIME", time.ToString(), DbType.AnsiString);
+                            dp.Add("@DATA", data, DbType.Binary);
+
+                            newCon.Execute(new CommandDefinition(rawSql, dp));
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Retrieval failed for Table \"{table}\".");
+                            transactionComplete = false;
+                            break;
+                        }
+                    }
+
+                    if (transactionComplete)
+                        trans.Commit();
+                    else
+                        trans.Rollback();
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                    transactionComplete = false;
+                }
+            }
+            newCon.Close();
+
+            return transactionComplete;
         }
 
         public void UpdateGameData(Tables table, int id, DateTime time, byte[] data)

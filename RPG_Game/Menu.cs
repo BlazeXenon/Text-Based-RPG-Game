@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Transactions;
 using System.Windows.Forms;
 
 namespace RPG_Game 
@@ -113,31 +115,39 @@ namespace RPG_Game
             //Program.ConsoleColorWriteLine("/w(1)/e New Game " + (File.Exists(Directory.GetCurrentDirectory() + "/save.txt") ? "/w(2)/e Load Game " : "") + "/w(99)/e Exit");
         }
 
-        private bool NewGame() 
+        private bool NewGame()
         {
-            string[] classDescriptions = { "/rWarrior/e: What some call a fearsome brute, this class thrives in health and strength.\n",
-                                           "/cMage/e: A powerful and deadly force, these people specialize in the art of magic.\n",
-                                           "/gArcher/e: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"};
-            string[] adjectives = { "Fantastic", "Marvelous", "Superb", "Sensational" };
+            string[] classDescriptions =
+            {
+                "/rWarrior/e: What some call a fearsome brute, this class thrives in health and strength.\n",
+                "/cMage/e: A powerful and deadly force, these people specialize in the art of magic.\n",
+                "/gArcher/e: Swift and nimble, the archer's bow allows them to pick enemies off from a distance.\n"
+            };
+            string[] adjectives = {"Fantastic", "Marvelous", "Superb", "Sensational"};
 
             string playerClass = "";
             string playerName = "";
             PlayerClass pc = PlayerClass.Undefined;
 
             bool firstAnimationHasBeenPlayed = false,
-                 secondAnimationHasBeenPlayed = false;
+                secondAnimationHasBeenPlayed = false;
 
-            while (playerClass == "") {
+            while (playerClass == "")
+            {
                 Console.Clear();
 
-                if (!firstAnimationHasBeenPlayed) {
+                if (!firstAnimationHasBeenPlayed)
+                {
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[0] + "\n"));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[1] + "\n"));
                     Animation.Queue(new Animation(AnimationType.TextTyping, 8, classDescriptions[2] + "\n\n"));
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "(use the command \"/wback/e\" to return to the previous screen)\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8,
+                        "(use the command \"/wback/e\" to return to the previous screen)\n"));
                     Animation.PlayQueue();
                     firstAnimationHasBeenPlayed = true;
-                } else {
+                }
+                else
+                {
                     Program.ConsoleColorWriteLine(classDescriptions[0] + "\n");
                     Program.ConsoleColorWriteLine(classDescriptions[1] + "\n");
                     Program.ConsoleColorWriteLine(classDescriptions[2] + "\n\n");
@@ -147,11 +157,17 @@ namespace RPG_Game
                 WriteOnBottomLine("Please Choose Your Class:\n", 2);
                 WriteOnBottomLine(">> ");
                 var pClass = Console.ReadLine();
-                if (pClass.Length > 0 && (pClass.ToLowerInvariant() == "warrior" || pClass.ToLowerInvariant() == "mage" || pClass.ToLowerInvariant() == "archer")) {
+                if (pClass.Length > 0 && (pClass.ToLowerInvariant() == "warrior" ||
+                                          pClass.ToLowerInvariant() == "mage" || pClass.ToLowerInvariant() == "archer"))
+                {
                     playerClass = pClass.ToLowerInvariant();
-                } else if (pClass.ToLowerInvariant().Equals("back")) {
+                }
+                else if (pClass.ToLowerInvariant().Equals("back"))
+                {
                     return false;
-                } else if (!pClass.Trim().Equals("")) {
+                }
+                else if (!pClass.Trim().Equals(""))
+                {
                     Animation.RunAnimation(textToType: "\n\n\nInvalid Class Selection.\n");
                     Console.ReadKey();
                 }
@@ -163,12 +179,12 @@ namespace RPG_Game
             {
                 pc = PlayerClass.Warrior;
                 greetingStr = "/rWarrior/e";
-            } 
+            }
             else if (playerClass == "mage")
             {
                 pc = PlayerClass.Mage;
                 greetingStr = "/cMage/e";
-            } 
+            }
             else if (playerClass == "archer")
             {
                 pc = PlayerClass.Archer;
@@ -181,25 +197,28 @@ namespace RPG_Game
 
                 if (!secondAnimationHasBeenPlayed)
                 {
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, $"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8,
+                        $"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n"));
                     Animation.Queue(new Animation(AnimationType.Dot, 20));
-                    Animation.Queue(new Animation(AnimationType.TextTyping, 8, "\nSpeaking of which, what is your /wname/e adventurer?\n"));
+                    Animation.Queue(new Animation(AnimationType.TextTyping, 8,
+                        "\nSpeaking of which, what is your /wname/e adventurer?\n"));
                     Animation.PlayQueue();
                     secondAnimationHasBeenPlayed = true;
                 }
                 else
                 {
-                    Program.ConsoleColorWriteLine($"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
+                    Program.ConsoleColorWriteLine(
+                        $"Greetings Adventurer! Ah, so you've decided to be a {greetingStr}, huh? {adjectives[adjectiveChosen]} Choice Adventurer!\n\n. . . \n");
                     Program.ConsoleColorWriteLine("Speaking of which, what is your /wname/e adventurer?\n");
                 }
-                
+
                 WriteOnBottomLine("Character Name:\n", 2);
                 WriteOnBottomLine(">> ");
                 string pName = Console.ReadLine();
 
                 if (pName == string.Empty || pName.Length < 2)
                     continue;
-                
+
                 Console.Clear();
                 Program.ConsoleColorWriteLine($"Are you sure you want to name your character \"/w{pName}/e\"? (y/N)");
                 WriteOnBottomLine(">> ");
@@ -211,15 +230,25 @@ namespace RPG_Game
                 }
             }
 
-            
+
             new Inventory();
             stats = new PlayerStats(pc, playerName);
 
             DateTime currentTime = DateTime.Now;
-            DatabaseHelper.instance.StoreGameData(Tables.Saves, currentTime, Program.Serialize(stats));
-            GameSaveId = DatabaseHelper.instance.StoreGameData(Tables.Inventory, currentTime, Program.Serialize(Inventory.instance));
 
-            return true;
+            bool successfulTransaction = DatabaseHelper.instance.StoreMultipleGameData(
+                new []{Tables.Saves, Tables.Inventory},
+                new []{ currentTime, currentTime }, 
+                new List<byte[]> { Program.Serialize(stats), Program.Serialize(Inventory.instance) },
+                out int lastId
+                );
+
+            //DatabaseHelper.instance.StoreGameData(Tables.Saves, currentTime, Program.Serialize(stats));
+            //GameSaveId = DatabaseHelper.instance.StoreGameData(Tables.Inventory, currentTime, Program.Serialize(Inventory.instance));
+            if (lastId != -1)
+                GameSaveId = lastId;
+
+            return successfulTransaction;
         }
 
         public static bool LoadGame(bool reload = false)

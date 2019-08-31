@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Transactions;
 using System.Windows.Forms;
 
 namespace RPG_Game 
@@ -44,7 +45,7 @@ namespace RPG_Game
                 Program.ConsoleColorWriteLine($"/rHealth:/e ({ps.Health}/{ps.MaxHealth})");
                 Program.ConsoleColorWriteLine($"/cMana:/e ({ps.Mana}/{ps.MaxMana})\n");
                 Program.ConsoleColorWriteLine($"/yLevel:/e {ps.Level + (ps.Level == 50 ? " (Max Level)" : "")}");
-                Program.ConsoleColorWriteLine($"/wExperience:/e ({ps.Experience}/{ps.MaxExperience})\n");
+                Program.ConsoleColorWriteLine($"/wExperience:/e ({Math.Round(ps.Experience, 2)}/{ps.MaxExperience})\n");
 
                 Program.ConsoleColorWriteLine($"/RPower:/e {ps.Power}");
                 Program.ConsoleColorWriteLine($"/gNimble:/e {ps.Nimble}");
@@ -70,7 +71,8 @@ namespace RPG_Game
                     }
                     else if (selection == 3)
                     {
-                        SaveGame();
+                        Animation.RunAnimation(textToType: SaveGame() ? "\nSuccessfully Saved Game!" : "\nUnable to Save Game.");
+                        Console.ReadKey();
                     }
                     else if (selection == 4)
                     {
@@ -458,12 +460,22 @@ namespace RPG_Game
             }
             
         }
-        public void SaveGame()
+        public bool SaveGame()
         {
             DateTime currentTime = DateTime.Now;
 
-            DatabaseHelper.instance.UpdateGameData(Tables.Saves, Menu.GameSaveId, currentTime, Program.Serialize(ps));
-            DatabaseHelper.instance.UpdateGameData(Tables.Inventory, Menu.GameSaveId, currentTime, Program.Serialize(Inventory.instance));
+            bool successfulSave = DatabaseHelper.instance.UpdateMultipleGameData(
+                new []{ Tables.Saves, Tables.Inventory }, 
+                new []{ Menu.GameSaveId, Menu.GameSaveId }, 
+                new []{ currentTime, currentTime }, 
+                new List<byte[]> { Program.Serialize(ps), Program.Serialize(Inventory.instance)}
+                );
+
+            return successfulSave;
+            //DatabaseHelper.instance.UpdateGameData(Tables.Saves, Menu.GameSaveId, currentTime, Program.Serialize(ps));
+            //DatabaseHelper.instance.UpdateGameData(Tables.Inventory, Menu.GameSaveId, currentTime, Program.Serialize(Inventory.instance));
+
+
 
             /* Old Method
             string gamesave = "name = " + ps.Name + Environment.NewLine

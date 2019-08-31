@@ -323,6 +323,26 @@ namespace RPG_Game
                 throw new ArgumentException($"Retrieval failed for Table \"{table}\".");
             }
         }
+
+        public void DeleteSaveData()
+        {
+            string saveDel = "DELETE FROM Saves WHERE Id = @Id";
+            string invDel = "DELETE FROM Inventory WHERE Id = @Id";
+
+            newCon.Open();
+
+            DynamicParameters dp = new DynamicParameters();
+            dp.Add("@Id", Menu.GameSaveId, DbType.Int32);
+
+            using (var transcation = newCon.BeginTransaction())
+            {
+                newCon.Execute(saveDel, dp);
+                newCon.Execute(invDel, dp);
+                transcation.Commit();
+            }
+
+            newCon.Close();
+        }
     }
 
     public enum Tables

@@ -89,7 +89,7 @@ namespace RPG_Game
             enemyDifficulty = difficulty / 2;
 
             health = Program.InclusiveIntRNG(healthMin * (healthMin / 2) + (enemyDifficulty), healthMin * (healthMin / 2) + (increasingHealthInterval * (enemyDifficulty + 1)));
-            power = Program.InclusiveIntRNG(powerMin + (enemyDifficulty + 3) / 2, (powerMin * (enemyDifficulty + 3)) / 2);
+            power = Program.InclusiveIntRNG(powerMin + (Game.ps.Health + enemyDifficulty) / 2, (powerMin + (Game.ps.Health + enemyDifficulty + 2)) / 2);
 
             uint min = (uint)(Health + Power) * 6,
                  max = (uint)(Health + Power) * 9;
